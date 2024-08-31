@@ -1,8 +1,7 @@
 import { createElement } from '../render.js';
+import { FILTER_TYPES } from '../const.js';
 
-const FILTER_TYPES = ['everything', 'future', 'present', 'past'];
-
-function createFilterListItem(type) {
+function createFilterItemTemplate(type) {
   return `<div class="trip-filters__filter">
                   <input id="filter-${type}" class="trip-filters__filter-input  visually-hidden" type="radio" name="trip-filter" value="${type}">
                   <label class="trip-filters__filter-label" for="filter-${type}">${type}</label>
@@ -10,20 +9,18 @@ function createFilterListItem(type) {
 `;
 }
 
-function createFilterListAcceptButton() {
-  return '<button class="visually-hidden" type="submit">Accept filter</button>';
-}
+const addFiltersList = () => FILTER_TYPES.map((type) => createFilterItemTemplate(type)).join('');
 
-function createFilterList() {
+function createFiltersTemplate() {
   return `<form class="trip-filters" action="#" method="get">
-  ${createFilterListAcceptButton()}
-  ${FILTER_TYPES.map((type) => createFilterListItem(type)).join('')}
+  ${addFiltersList()}
+  <button class="visually-hidden" type="submit">Accept filter</button>
           </form>`;
 }
 
-export default class FilterListView{
+export default class FiltersView{
   getTemplate() {
-    return createFilterList();
+    return createFiltersTemplate();
   }
 
   getElement() {
