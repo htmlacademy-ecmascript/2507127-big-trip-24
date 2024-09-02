@@ -117,7 +117,7 @@ function createFormAddEventTemplate() {
 }
 
 
-export default class FormAddEventView{
+export default class FormEditEventView{
   getTemplate() {
     return createFormAddEventTemplate();
   }
