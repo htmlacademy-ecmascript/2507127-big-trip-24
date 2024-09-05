@@ -34,5 +34,12 @@ const SORT_TYPE = ['day', 'event', 'time', 'price', 'offers'];
 
 const EVENT_TYPE = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
+const TimeFormat = {
+  DATE: 'MMM D',
+  TIME: 'hh:mm',
+  DATE_FULL: 'YYYY-MM-DD',
+  DATETIME_FULL: 'YYYY-MM-DDTHH:MM'
+};
 
-export { EVENT_OFFERS, FILTER_TYPES, SORT_TYPE, EVENT_TYPE };
+
+export { EVENT_OFFERS, FILTER_TYPES, SORT_TYPE, EVENT_TYPE, TimeFormat };
