@@ -27,7 +27,6 @@ const EVENT_OFFERS = [
   },
 ];
 
-const PHOTOS_AMOUNT = 5;
 
 const FILTER_TYPES = ['everything', 'future', 'present', 'past'];
 
@@ -35,6 +34,5 @@ const SORT_TYPE = ['day', 'event', 'time', 'price', 'offers'];
 
 const EVENT_TYPE = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
 
-const EVENTS_AMOUNT = 3;
 
-export { EVENT_OFFERS, PHOTOS_AMOUNT, FILTER_TYPES, SORT_TYPE, EVENTS_AMOUNT, EVENT_TYPE };
+export { EVENT_OFFERS, FILTER_TYPES, SORT_TYPE, EVENT_TYPE };

@@ -1,6 +1,7 @@
 import { createElement } from '../render.js';
-import { EVENT_OFFERS, PHOTOS_AMOUNT, EVENT_TYPE } from '../const.js';
+import { EVENT_OFFERS, EVENT_TYPE } from '../const.js';
 
+const PHOTOS_AMOUNT = 5;
 
 function createEventTypeItemTemplate(type) {
   return `
