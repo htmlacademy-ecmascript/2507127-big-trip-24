@@ -6,8 +6,6 @@ import FormEditEventView from '../view/form-edit-event-view.js';
 import BoardView from '../view/board-view.js';
 import { render } from '../render.js';
 
-const EVENTS_AMOUNT = 3;
-
 export default class BoardPresenter {
   boardComponent = new BoardView;
   eventListComponent = new EventListView;
@@ -26,7 +24,13 @@ export default class BoardPresenter {
     render(new FormAddEventView, this.boardComponent.getElement());
 
     for (let i = 0; i < this.boardEvents.length; i++) {
-      render(new EventItemView({event: this.boardEvents[i]}), this.eventListComponent.getElement());
+      const eventData = this.boardEvents[i];
+      const event = new EventItemView({
+        event: eventData,
+        offers: [...this.boardModel.getOffersById(eventData.type, eventData.offers)],
+        destination: this.boardModel.getDestinationById(eventData.destination)
+      });
+      render(event, this.eventListComponent.getElement());
     }
 
     render(new FormEditEventView, this.boardContainer);

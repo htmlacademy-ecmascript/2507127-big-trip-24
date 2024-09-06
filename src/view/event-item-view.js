@@ -2,9 +2,7 @@ import { createElement } from '../render.js';
 import { humanizeDate } from '../utils.js';
 import { TimeFormat } from '../const.js';
 
-function createOffersListTemplate(offer){
-  const { title, price } = offer;
-
+function createOffersListTemplate({title, price}){
   return `
     <li class="event__offer">
       <span class="event__offer-title">${title}</span>
@@ -14,18 +12,15 @@ function createOffersListTemplate(offer){
   `;
 }
 
-const renderOffersList = (event) => event.offers.map((offer) => createOffersListTemplate(offer)).join('');
+const renderOffersList = (offers) => offers.map((offer) => createOffersListTemplate(offer)).join('');
 
-function createEventDateTemplate(event) {
-  const {dateFrom} = event;
-
+function createEventDateTemplate({dateFrom}) {
   return `
     <time class="event__date" datetime=${humanizeDate(dateFrom, TimeFormat.DATE_FULL)}>${humanizeDate(dateFrom, TimeFormat.DATE)}</time>
   `;
 }
 
-function createEventTypeTemplate(event) {
-  const { type } = event;
+function createEventTypeTemplate({type}) {
 
   return `
     <div class="event__type">
@@ -34,16 +29,14 @@ function createEventTypeTemplate(event) {
   `;
 }
 
-function createEventTitleTemplate(event) {
-  const { destination, type } = event;
+function createEventTitleTemplate(event, destination) {
 
   return `
-    <h3 class="event__title">${type} ${destination.name}</h3>
+    <h3 class="event__title">${event.type} ${destination.name}</h3>
   `;
 }
 
-function createEventScheduleTemplate(event){
-  const {dateFrom, dateTo} = event;
+function createEventScheduleTemplate({dateFrom, dateTo}){
 
   return `
     <div class="event__schedule">
@@ -57,8 +50,7 @@ function createEventScheduleTemplate(event){
   `;
 }
 
-function createEventPriceTemplate(event) {
-  const { basePrice } = event;
+function createEventPriceTemplate({basePrice}) {
 
   return `
     <p class="event__price">
@@ -67,19 +59,16 @@ function createEventPriceTemplate(event) {
   `;
 }
 
-function createEventOffersTemplate(event) {
-  const { offers } = event;
-
+function createEventOffersTemplate(offers) {
   return `
     <h4 class="visually-hidden">Offers:</h4>
     <ul class="event__selected-offers">
-      ${offers.length ? renderOffersList(event) : ''}
+      ${offers.length ? renderOffersList(offers) : ''}
     </ul>
   `;
 }
 
-function createEventButtonsTemplate(event) {
-  const { isFavorite } = event;
+function createEventButtonsTemplate({isFavorite}) {
 
   return `
     <button class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
@@ -94,15 +83,15 @@ function createEventButtonsTemplate(event) {
   `;
 }
 
-function createEventItemTemplate(event) {
+function createEventItemTemplate(event, offers, destination) {
   return ` <li class="trip-events__item">
               <div class="event">
                 ${createEventDateTemplate(event)}
                 ${createEventTypeTemplate(event)}
-                ${createEventTitleTemplate(event)}
+                ${createEventTitleTemplate(event, destination)}
                 ${createEventScheduleTemplate(event)}
                 ${createEventPriceTemplate(event)}
-                ${createEventOffersTemplate(event)}
+                ${createEventOffersTemplate(offers)}
                 ${createEventButtonsTemplate(event)}
               </div>
             </li>
@@ -110,12 +99,14 @@ function createEventItemTemplate(event) {
 }
 
 export default class EventItemView{
-  constructor({event}) {
+  constructor({event, offers, destination}) {
     this.event = event;
+    this.offers = offers;
+    this.destination = destination;
   }
 
   getTemplate() {
-    return createEventItemTemplate(this.event);
+    return createEventItemTemplate(this.event, this.offers, this.destination);
   }
 
   getElement() {
