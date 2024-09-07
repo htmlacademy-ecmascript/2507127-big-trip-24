@@ -1,5 +1,4 @@
 import { createElement } from '../render.js';
-// import { EVENT_OFFERS, EVENT_TYPE } from '../const.js';
 
 const PHOTOS_AMOUNT = 5;
 
@@ -12,7 +11,7 @@ function createEventTypeItemTemplate(type) {
   `;
 }
 
-const addEventTypeList = () => EVENT_TYPE.map((type) => createEventTypeItemTemplate(type)).join('');
+const addEventTypeList = (types) => types.map((type) => createEventTypeItemTemplate(type)).join('');
 
 function createFormHeaderTemplate() {
   return `
@@ -103,7 +102,7 @@ function createEventPhotoContainerTemplate(){
   `;
 }
 
-const addOfferList = () => EVENT_OFFERS.map((offer) => createEventOfferTemplate(offer)).join('');
+const addOfferList = (offers) => offers.map((offer) => createEventOfferTemplate(offer)).join('');
 
 
 function createEventDestinationTemplate() {
