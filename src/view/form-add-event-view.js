@@ -1,5 +1,5 @@
 import { createElement } from '../render.js';
-import { EVENT_OFFERS, EVENT_TYPE } from '../const.js';
+// import { EVENT_OFFERS, EVENT_TYPE } from '../const.js';
 
 const PHOTOS_AMOUNT = 5;
 

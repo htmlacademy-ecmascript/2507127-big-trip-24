@@ -21,6 +21,12 @@ export default class BoardModel {
     return this.offers;
   }
 
+  getAllTypes(){
+    const types = [];
+    [...this.offers].map((item) => types.push(item.type));
+    return types;
+  }
+
   getDestinationById(id) {
     return this.destinations.find((item) => item.id === id);
   }
@@ -32,5 +38,13 @@ export default class BoardModel {
   getOffersById(type, offersId) {
     const targetOffers = this.getOffersByType(type).offers;
     return targetOffers.filter((item) => offersId.find((id) => item.id === id));
+  }
+
+  getEventData(event, model) {
+    return {
+      event,
+      offers: [...model.getOffersById(event.type, event.offers)],
+      destination: model.getDestinationById(event.destination)
+    };
   }
 }
