@@ -14,12 +14,9 @@ function createEventTypeItemTemplate(type) {
 
 const addEventTypeList = (types) => types.map((type) => createEventTypeItemTemplate(type)).join('');
 
-function createFormHeaderTemplate(event, destination, allTypes) {
-  const startTime = humanizeDate(event.dateFrom, TimeFormat.FORM_EDIT);
-  const endTime = humanizeDate(event.dateTo, TimeFormat.FORM_EDIT);
+function createFormHeaderTypeTemplate(event, allTypes){
   return `
-    <header class="event__header">
-                  <div class="event__type-wrapper">
+    <div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
                       <span class="visually-hidden">Choose event type</span>
                       <img class="event__type-icon" width="17" height="17" src="img/icons/${event.type}.png" alt="Event type icon">
@@ -34,8 +31,12 @@ function createFormHeaderTemplate(event, destination, allTypes) {
                       </fieldset>
                     </div>
                   </div>
+  `;
+}
 
-                  <div class="event__field-group  event__field-group--destination">
+function createFormHeaderEventNameTemplate(event, destination){
+  return `
+    <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${event.type}
                     </label>
@@ -46,25 +47,51 @@ function createFormHeaderTemplate(event, destination, allTypes) {
                       <option value="Chamonix"></option>
                     </datalist>
                   </div>
+  `;
+}
 
-                  <div class="event__field-group  event__field-group--time">
-                    <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}">
-                    &mdash;
-                    <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}">
-                  </div>
+function createFormHeaderTimeTemplate(event){
+  const startTime = humanizeDate(event.dateFrom, TimeFormat.FORM_EDIT);
+  const endTime = humanizeDate(event.dateTo, TimeFormat.FORM_EDIT);
+  return `
+    <div class="event__field-group  event__field-group--time">
+      <label class="visually-hidden" for="event-start-time-1">From</label>
+      <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}">
+      &mdash;
+      <label class="visually-hidden" for="event-end-time-1">To</label>
+      <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}">
+    </div>
+  `;
+}
 
-                  <div class="event__field-group  event__field-group--price">
+function createFormHeaderPriceTemplate({basePrice}){
+  return `
+    <div class="event__field-group  event__field-group--price">
                     <label class="event__label" for="event-price-1">
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${event.basePrice}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
                   </div>
+  `;
+}
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Cancel</button>
+function createFormHeaderButtonsTemplate(){
+  return `
+    <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+    <button class="event__reset-btn" type="reset">Cancel</button>
+  `;
+}
+
+function createFormHeaderTemplate(event, destination, allTypes) {
+
+  return `
+    <header class="event__header">
+                  ${createFormHeaderTypeTemplate(event, allTypes)}
+                  ${createFormHeaderEventNameTemplate(event, destination)}
+                  ${createFormHeaderTimeTemplate(event)}
+                  ${createFormHeaderPriceTemplate(event)}
+                  ${createFormHeaderButtonsTemplate()}
                 </header>
   `;
 }
@@ -104,22 +131,27 @@ function createEventDestinationTemplate(destination) {
     <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                     <p class="event__destination-description">${destination.description}</p>
-                    ${destination.pictures && createEventPhotoContainerTemplate(destination)}
+                    ${destination.pictures.length > 0 ? createEventPhotoContainerTemplate(destination) : ''}
                   </section>
   `;
 }
 
 const addOfferList = (offers) => offers.map((offer) => createEventOfferTemplate(offer)).join('');
 
-function createEventDetailsTemplate(offer, destination) {
+function createOfferListTemplate(offerList) {
+  return `
+  <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+    <div class="event__available-offers">
+                      ${offerList}
+                    </div>
+  `;
+}
+
+function createEventDetailsTemplate(offerList, destination) {
   return `
       <section class="event__details">
                   <section class="event__section  event__section--offers">
-                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-                    <div class="event__available-offers">
-                      ${offer}
-                    </div>
+                    ${offerList.length ? createOfferListTemplate(offerList) : '' }
                   </section>
                   ${destination}
                 </section>
