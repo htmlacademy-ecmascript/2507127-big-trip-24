@@ -1,5 +1,5 @@
 import { createElement } from '../render.js';
-import { humanizeDate } from '../utils.js';
+import { getTimeDifference, humanizeDate } from '../utils.js';
 import { TimeFormat } from '../const.js';
 
 function createOffersListTemplate({title, price}){
@@ -37,6 +37,7 @@ function createEventTitleTemplate(event, destination) {
 }
 
 function createEventScheduleTemplate({dateFrom, dateTo}){
+  const timeDifference = getTimeDifference(dateFrom, dateTo);
 
   return `
     <div class="event__schedule">
@@ -45,7 +46,7 @@ function createEventScheduleTemplate({dateFrom, dateTo}){
         &mdash;
         <time class="event__end-time" datetime=${humanizeDate(dateFrom, TimeFormat.DATETIME_FULL)}>${humanizeDate(dateTo, TimeFormat.TIME)}</time>
       </p>
-      <p class="event__duration">???</p>
+      <p class="event__duration">${timeDifference}</p>
     </div>
   `;
 }

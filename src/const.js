@@ -36,9 +36,9 @@ const EVENT_TYPE = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in
 
 const TimeFormat = {
   DATE: 'MMM D',
-  TIME: 'hh:mm',
+  TIME: 'HH:mm',
   DATE_FULL: 'YYYY-MM-DD',
-  DATETIME_FULL: 'YYYY-MM-DDTHH:MM'
+  DATETIME_FULL: 'YYYY-MM-DDTHH:mm'
 };
 
 
