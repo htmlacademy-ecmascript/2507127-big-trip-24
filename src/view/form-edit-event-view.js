@@ -80,6 +80,9 @@ function createFormHeaderButtonsTemplate(){
   return `
     <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
     <button class="event__reset-btn" type="reset">Cancel</button>
+    <button class="event__rollup-btn" type="button">
+      <span class="visually-hidden">Open event</span>
+    </button>
   `;
 }
 
@@ -174,7 +177,10 @@ export default class FormEditEventView extends AbstractView{
   #destination = null;
   #typeOffers = null;
   #allTypes = null;
-  constructor(eventData, typeOffers, allTypes) {
+  #handleFormSubmit = null;
+  #handleFormClose = null;
+
+  constructor({eventData, typeOffers, allTypes, onFormSubmit, onFormClose}) {
     super();
     const {event, offers, destination} = eventData;
     this.#event = event;
@@ -182,10 +188,27 @@ export default class FormEditEventView extends AbstractView{
     this.#destination = destination;
     this.#typeOffers = typeOffers;
     this.#allTypes = allTypes;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleFormClose = onFormClose;
+
+    //querySelector возвращает null, потому заменил на closest
+    this.element.closest('form').addEventListener('submit', this.#formSubmitHandler);
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
   }
 
   get template() {
     return createFormAddEventTemplate(this.#event, this.#destination, this.#typeOffers, this.#allTypes);
   }
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
+
+  #formCloseHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormClose();
+  };
 
 }
