@@ -169,18 +169,23 @@ function createFormAddEventTemplate(event, destination, typeOffers, allTypes) {
 
 
 export default class FormEditEventView extends AbstractView{
+  #event = null;
+  #offers = null;
+  #destination = null;
+  #typeOffers = null;
+  #allTypes = null;
   constructor(eventData, typeOffers, allTypes) {
     super();
     const {event, offers, destination} = eventData;
-    this.event = event;
-    this.offers = offers;
-    this.destination = destination;
-    this.typeOffers = typeOffers;
-    this.allTypes = allTypes;
+    this.#event = event;
+    this.#offers = offers;
+    this.#destination = destination;
+    this.#typeOffers = typeOffers;
+    this.#allTypes = allTypes;
   }
 
   get template() {
-    return createFormAddEventTemplate(this.event, this.destination, this.typeOffers, this.allTypes);
+    return createFormAddEventTemplate(this.#event, this.#destination, this.#typeOffers, this.#allTypes);
   }
 
 }

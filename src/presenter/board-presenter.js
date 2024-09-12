@@ -17,7 +17,7 @@ export default class BoardPresenter {
   }
 
   init() {
-    this.boardEvents = [...this.#boardModel.getEvents()];
+    this.boardEvents = [...this.#boardModel.events];
 
     this.#renderBoard();
   }
@@ -30,15 +30,15 @@ export default class BoardPresenter {
     for (let i = 0; i < this.boardEvents.length; i++) {
       const eventData = this.#boardModel.getEventData(this.boardEvents[i], this.#boardModel);
       const typeOffers = this.#boardModel.getOffersByType(this.boardEvents[i].type).offers;
-      const allTypes = this.#boardModel.getAllTypes();
+      const allTypes = this.#boardModel.allTypes;
 
       const event = new EventItemView(eventData);
 
-      //Временное решение для отображения формы вместо элемента списка (event-item-view)
-      if (i === 0) {
-        render(new FormEditEventView(eventData, typeOffers, allTypes), this.#eventListComponent.element);
-        continue;
-      }
+      // Временное решение для отображения формы вместо элемента списка (event-item-view)
+      // if (i === 0) {
+      //   render(new FormEditEventView(eventData, typeOffers, allTypes), this.#eventListComponent.element);
+      //   continue;
+      // }
 
       render(event, this.#eventListComponent.element);
     }

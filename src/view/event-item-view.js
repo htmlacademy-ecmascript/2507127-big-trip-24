@@ -100,14 +100,18 @@ function createEventItemTemplate(event, offers, destination) {
 }
 
 export default class EventItemView extends AbstractView{
+  #event = null;
+  #offers = null;
+  #destination = null;
+
   constructor({event, offers, destination}) {
     super();
-    this.event = event;
-    this.offers = offers;
-    this.destination = destination;
+    this.#event = event;
+    this.#offers = offers;
+    this.#destination = destination;
   }
 
   get template() {
-    return createEventItemTemplate(this.event, this.offers, this.destination);
+    return createEventItemTemplate(this.#event, this.#offers, this.#destination);
   }
 }
