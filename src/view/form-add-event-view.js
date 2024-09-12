@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const PHOTOS_AMOUNT = 5;
 
@@ -141,20 +141,8 @@ function createFormAddEventTemplate() {
 }
 
 
-export default class FormAddEventView{
-  getTemplate() {
+export default class FormAddEventView extends AbstractView{
+  get template() {
     return createFormAddEventTemplate();
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

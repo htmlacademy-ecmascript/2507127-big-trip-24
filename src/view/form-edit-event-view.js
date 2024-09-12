@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {TimeFormat } from '../const.js';
 import { humanizeDate } from '../utils.js';
 
@@ -168,8 +168,9 @@ function createFormAddEventTemplate(event, destination, typeOffers, allTypes) {
 }
 
 
-export default class FormEditEventView{
+export default class FormEditEventView extends AbstractView{
   constructor(eventData, typeOffers, allTypes) {
+    super();
     const {event, offers, destination} = eventData;
     this.event = event;
     this.offers = offers;
@@ -178,19 +179,8 @@ export default class FormEditEventView{
     this.allTypes = allTypes;
   }
 
-  getTemplate() {
+  get template() {
     return createFormAddEventTemplate(this.event, this.destination, this.typeOffers, this.allTypes);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
 }
