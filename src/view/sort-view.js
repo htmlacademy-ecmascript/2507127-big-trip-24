@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { SORT_TYPE } from '../const.js';
+import { SORT_TYPE } from '../utils/const.js';
 
 function createSortItemTemplate(type) {
   return `<div class="trip-sort__item  trip-sort__item--${type}">

@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {TimeFormat } from '../const.js';
-import { humanizeDate } from '../utils.js';
+import {TimeFormat } from '../utils/const.js';
+import { humanizeDate } from '../utils/date.js';
 
 
 function createEventTypeItemTemplate(type) {
