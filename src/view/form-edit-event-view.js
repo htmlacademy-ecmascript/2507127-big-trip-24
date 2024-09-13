@@ -53,6 +53,7 @@ function createFormHeaderEventNameTemplate(event, destination){
 function createFormHeaderTimeTemplate(event){
   const startTime = humanizeDate(event.dateFrom, TimeFormat.FORM_EDIT);
   const endTime = humanizeDate(event.dateTo, TimeFormat.FORM_EDIT);
+
   return `
     <div class="event__field-group  event__field-group--time">
       <label class="visually-hidden" for="event-start-time-1">From</label>

@@ -29,8 +29,19 @@ function getTimeDifference(dateFrom, dateTo) {
   return eventDuration;
 }
 
-function isEventExpired(dueDate){
-  return dueDate && dayjs().isAfter(dueDate, 'D');
+function isEventFuture(event) {
+  return event.dateFrom && dayjs().isBefore(event.dateFrom, 'D');
 }
 
-export { humanizeDate, isEventExpired, getTimeDifference };
+function isEventActive(event) {
+  const areDatesExist = event.dateFrom && event.dateTo;
+  const isDayBetweenDates = (dayjs().isSame(event.dateFrom, 'D') || dayjs().isAfter(event.dateFrom, 'D')) && dayjs().isBefore(event.dateTo, 'D');
+  return areDatesExist && isDayBetweenDates ;
+}
+
+function isEventExpired (event) {
+  return event.dateTo && dayjs().isAfter(event.dateTo, 'D');
+}
+
+
+export { humanizeDate, getTimeDifference, isEventFuture, isEventExpired, isEventActive };
