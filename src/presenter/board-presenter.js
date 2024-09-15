@@ -4,6 +4,7 @@ import EventItemView from '../view/event-item-view.js';
 import FormEditEventView from '../view/form-edit-event-view.js';
 import BoardView from '../view/board-view.js';
 import { render, replace } from '../framework/render.js';
+import EmptyEventsListView from '../view/empty-events-list-view.js';
 
 export default class BoardPresenter {
   #boardComponent = new BoardView;
@@ -73,6 +74,11 @@ export default class BoardPresenter {
     render(this.#boardComponent, this.#boardContainer);
     render(this.#eventListComponent, this.#boardContainer);
     render(new SortView, this.#boardComponent.element);
+
+    if (this.boardEvents.length === 0) {
+      render(new EmptyEventsListView, this.#boardContainer);
+      return;
+    }
 
     for (let i = 0; i < this.boardEvents.length; i++) {
       const eventData = this.#boardModel.getEventData(this.boardEvents[i], this.#boardModel);

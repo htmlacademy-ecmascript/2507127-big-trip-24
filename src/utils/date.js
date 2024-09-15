@@ -29,18 +29,19 @@ function getTimeDifference(dateFrom, dateTo) {
   return eventDuration;
 }
 
-function isEventExpired(dueDate){
-  return dueDate && dayjs().isAfter(dueDate, 'D');
+function isEventFuture(event) {
+  return event.dateFrom && dayjs().isBefore(event.dateFrom, 'D');
 }
 
-//Использование замыканий для увеличения числа на единицу
-const increaseNumber = () => {
-  let num = 1;
-  return () => num++;
-};
-
-function getRandomArrayElement(items){
-  return items[Math.floor(Math.random() * items.length)];
+function isEventActive(event) {
+  const areDatesExist = event.dateFrom && event.dateTo;
+  const isDayBetweenDates = (dayjs().isSame(event.dateFrom, 'D') || dayjs().isAfter(event.dateFrom, 'D')) && dayjs().isBefore(event.dateTo, 'D');
+  return areDatesExist && isDayBetweenDates ;
 }
 
-export { increaseNumber, getRandomArrayElement, humanizeDate, isEventExpired, getTimeDifference};
+function isEventExpired (event) {
+  return event.dateTo && dayjs().isAfter(event.dateTo, 'D');
+}
+
+
+export { humanizeDate, getTimeDifference, isEventFuture, isEventExpired, isEventActive };

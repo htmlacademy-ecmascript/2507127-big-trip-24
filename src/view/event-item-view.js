@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { getTimeDifference, humanizeDate } from '../utils.js';
-import { TimeFormat } from '../const.js';
+import { getTimeDifference, humanizeDate } from '../utils/date.js';
+import { TimeFormat } from '../utils/const.js';
 
 function createOffersListTemplate({title, price}){
   return `

@@ -1,11 +1,11 @@
-import { getRandomArrayElement } from '../utils';
+import { getRandomArrayElement } from '../utils/common.js';
 
 const jsonPointEvents = [
   {
     'id': '13970780-1672-46c4-a21f-e6b9a595844e',
     'base_price': 8579,
-    'date_from': '2024-10-24T06:37:09.899Z',
-    'date_to': '2024-10-24T13:03:09.899Z',
+    'date_from': '2023-10-24T06:37:09.899Z',
+    'date_to': '2023-10-24T13:03:09.899Z',
     'destination': '039f3178-3015-46b2-a395-fa26efb2015c',
     'is_favorite': true,
     'offers': [],
@@ -14,8 +14,8 @@ const jsonPointEvents = [
   {
     'id': '37d938bd-02ea-4a60-981f-901b03c016e0',
     'base_price': 1294,
-    'date_from': '2024-10-25T18:41:09.899Z',
-    'date_to': '2024-10-27T09:05:09.899Z',
+    'date_from': '2023-10-25T18:41:09.899Z',
+    'date_to': '2023-10-27T09:05:09.899Z',
     'destination': '3a3146cf-f88f-4d1e-8bed-7eb6cef145c8',
     'is_favorite': true,
     'offers': [
@@ -28,8 +28,8 @@ const jsonPointEvents = [
   {
     'id': '67c5e788-e587-4e68-86b3-1fbfc0b2e0d6',
     'base_price': 1619,
-    'date_from': '2024-10-28T15:57:09.899Z',
-    'date_to': '2024-10-29T03:09:09.899Z',
+    'date_from': '2023-10-28T15:57:09.899Z',
+    'date_to': '2023-10-29T03:09:09.899Z',
     'destination': 'e2ddfcc3-a9b8-4db6-a811-a3828d2a829c',
     'is_favorite': true,
     'offers': [
