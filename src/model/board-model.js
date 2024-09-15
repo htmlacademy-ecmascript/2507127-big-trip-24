@@ -5,34 +5,34 @@ import { getRandomMockPointEvent } from '../mock/mock-point-events';
 const EVENTS_COUNT = 4;
 
 export default class BoardModel {
-  events = Array.from({length: EVENTS_COUNT}, getRandomMockPointEvent);
-  destinations = mockDestinations;
-  offers = mockOffers;
+  #events = Array.from({length: EVENTS_COUNT}, getRandomMockPointEvent);
+  #destinations = mockDestinations;
+  #offers = mockOffers;
 
-  getEvents(){
-    return this.events;
+  get events(){
+    return this.#events;
   }
 
-  getDestinations(){
-    return this.destinations;
+  get destinations(){
+    return this.#destinations;
   }
 
-  getOffers(){
-    return this.offers;
+  get offers(){
+    return this.#offers;
   }
 
-  getAllTypes(){
+  get allTypes(){
     const types = [];
-    [...this.offers].map((item) => types.push(item.type));
+    [...this.#offers].map((item) => types.push(item.type));
     return types;
   }
 
   getDestinationById(id) {
-    return this.destinations.find((item) => item.id === id);
+    return this.#destinations.find((item) => item.id === id);
   }
 
   getOffersByType(type) {
-    return this.offers.find((item) => item.type === type);
+    return this.#offers.find((item) => item.type === type);
   }
 
   getOffersById(type, offersId) {

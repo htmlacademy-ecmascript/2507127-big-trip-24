@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {TimeFormat } from '../const.js';
 import { humanizeDate } from '../utils.js';
 
@@ -80,6 +80,9 @@ function createFormHeaderButtonsTemplate(){
   return `
     <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
     <button class="event__reset-btn" type="reset">Cancel</button>
+    <button class="event__rollup-btn" type="button">
+      <span class="visually-hidden">Open event</span>
+    </button>
   `;
 }
 
@@ -168,29 +171,44 @@ function createFormAddEventTemplate(event, destination, typeOffers, allTypes) {
 }
 
 
-export default class FormEditEventView{
-  constructor(eventData, typeOffers, allTypes) {
+export default class FormEditEventView extends AbstractView{
+  #event = null;
+  #offers = null;
+  #destination = null;
+  #typeOffers = null;
+  #allTypes = null;
+  #handleFormSubmit = null;
+  #handleFormClose = null;
+
+  constructor({eventData, typeOffers, allTypes, onFormSubmit, onFormClose}) {
+    super();
     const {event, offers, destination} = eventData;
-    this.event = event;
-    this.offers = offers;
-    this.destination = destination;
-    this.typeOffers = typeOffers;
-    this.allTypes = allTypes;
+    this.#event = event;
+    this.#offers = offers;
+    this.#destination = destination;
+    this.#typeOffers = typeOffers;
+    this.#allTypes = allTypes;
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleFormClose = onFormClose;
+
+    //querySelector возвращает null, потому заменил на closest
+    this.element.closest('form').addEventListener('submit', this.#formSubmitHandler);
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
   }
 
-  getTemplate() {
-    return createFormAddEventTemplate(this.event, this.destination, this.typeOffers, this.allTypes);
+  get template() {
+    return createFormAddEventTemplate(this.#event, this.#destination, this.#typeOffers, this.#allTypes);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 
-    return this.element;
-  }
+  #formCloseHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormClose();
+  };
 
-  removeElement() {
-    this.element = null;
-  }
 }

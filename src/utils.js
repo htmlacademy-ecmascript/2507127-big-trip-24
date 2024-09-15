@@ -43,8 +43,4 @@ function getRandomArrayElement(items){
   return items[Math.floor(Math.random() * items.length)];
 }
 
-function isEventRepeating(repeating) {
-  return Object.values(repeating).some(Boolean);
-}
-
-export { increaseNumber, getRandomArrayElement, humanizeDate, isEventExpired, isEventRepeating, getTimeDifference};
+export { increaseNumber, getRandomArrayElement, humanizeDate, isEventExpired, getTimeDifference};
