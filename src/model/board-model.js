@@ -40,11 +40,11 @@ export default class BoardModel {
     return targetOffers.filter((item) => offersId.find((id) => item.id === id));
   }
 
-  getEventData(event, model) {
+  getEventData(event) {
     return {
       event,
-      offers: [...model.getOffersById(event.type, event.offers)],
-      destination: model.getDestinationById(event.destination)
+      offers: [...this.getOffersById(event.type, event.offers)],
+      destination: this.getDestinationById(event.destination)
     };
   }
 }

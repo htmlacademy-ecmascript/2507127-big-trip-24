@@ -84,7 +84,7 @@ function createEventButtonsTemplate({isFavorite}) {
   `;
 }
 
-function createEventItemTemplate(event, offers, destination) {
+function createEventItemTemplate({event, offers, destination}) {
   return ` <li class="trip-events__item">
               <div class="event">
                 ${createEventDateTemplate(event)}
@@ -100,24 +100,23 @@ function createEventItemTemplate(event, offers, destination) {
 }
 
 export default class EventItemView extends AbstractView{
-  #event = null;
-  #offers = null;
-  #destination = null;
+  #eventData = null;
   #handleEditClick = null;
 
   constructor({eventData, onEditClick}) {
     super();
-    const {event, offers, destination} = eventData;
-    this.#event = event;
-    this.#offers = offers;
-    this.#destination = destination;
+    this.#eventData = eventData;
     this.#handleEditClick = onEditClick;
 
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this.setEventListener();
   }
 
   get template() {
-    return createEventItemTemplate(this.#event, this.#offers, this.#destination);
+    return createEventItemTemplate(this.#eventData);
+  }
+
+  setEventListener(){
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
   #editClickHandler = (evt) => {

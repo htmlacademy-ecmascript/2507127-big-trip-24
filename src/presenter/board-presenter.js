@@ -11,6 +11,7 @@ export default class BoardPresenter {
   #eventListComponent = new EventListView;
   #boardContainer = null;
   #boardModel = null;
+  #boardEvents = null;
 
   constructor({boardContainer, boardModel}) {
     this.#boardContainer = boardContainer;
@@ -18,7 +19,7 @@ export default class BoardPresenter {
   }
 
   init() {
-    this.boardEvents = [...this.#boardModel.events];
+    this.#boardEvents = [...this.#boardModel.events];
 
     this.#renderBoard();
   }
@@ -75,14 +76,14 @@ export default class BoardPresenter {
     render(this.#eventListComponent, this.#boardContainer);
     render(new SortView, this.#boardComponent.element);
 
-    if (this.boardEvents.length === 0) {
+    if (this.#boardEvents.length === 0) {
       render(new EmptyEventsListView, this.#boardContainer);
       return;
     }
 
-    for (let i = 0; i < this.boardEvents.length; i++) {
-      const eventData = this.#boardModel.getEventData(this.boardEvents[i], this.#boardModel);
-      const typeOffers = this.#boardModel.getOffersByType(this.boardEvents[i].type).offers;
+    for (let i = 0; i < this.#boardEvents.length; i++) {
+      const eventData = this.#boardModel.getEventData(this.#boardEvents[i]);
+      const typeOffers = this.#boardModel.getOffersByType(this.#boardEvents[i].type).offers;
       const allTypes = this.#boardModel.allTypes;
 
       this.#renderEvent(eventData, typeOffers, allTypes);
