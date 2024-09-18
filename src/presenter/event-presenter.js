@@ -2,9 +2,15 @@ import { remove, render, replace } from '../framework/render';
 import EventItemView from '../view/event-item-view';
 import FormEditEventView from '../view/form-edit-event-view';
 
+const mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING'
+};
+
 export default class EventPresenter{
   #eventListContainer = null;
   #handleDataChange = null;
+  #handleModeChange = null;
 
   #eventComponent = null;
   #eventEditComponent = null;
@@ -13,9 +19,12 @@ export default class EventPresenter{
   #typeOffers = null;
   #allTypes = null;
 
-  constructor({eventListContainer, onDataChange}) {
+  #mode = mode.DEFAULT;
+
+  constructor({eventListContainer, onDataChange, onModeChange}) {
     this.#eventListContainer = eventListContainer;
     this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init({eventData, typeOffers, allTypes}){
@@ -45,11 +54,11 @@ export default class EventPresenter{
       return;
     }
 
-    if (this.#eventListContainer.contains(prevEventComponent.element)) {
+    if (this.#mode === mode.DEFAULT) {
       replace(this.#eventComponent, prevEventComponent);
     }
 
-    if (this.#eventListContainer.contains(prevEventEditComponent.element)) {
+    if (this.#mode === mode.EDITING) {
       replace(this.#eventEditComponent, prevEventEditComponent);
     }
 
@@ -60,6 +69,12 @@ export default class EventPresenter{
   destroy(){
     remove(this.#eventComponent);
     remove(this.#eventEditComponent);
+  }
+
+  resetView(){
+    if (this.#mode !== 'DEFAULT') {
+      this.#replaceFormToEvent();
+    }
   }
 
   #handleFavoriteClick = () => {
@@ -94,10 +109,14 @@ export default class EventPresenter{
   #replaceEventToForm(){
     replace(this.#eventEditComponent, this.#eventComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = mode.EDITING;
   }
 
   #replaceFormToEvent(){
     replace(this.#eventComponent, this.#eventEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = mode.DEFAULT;
   }
+
 }

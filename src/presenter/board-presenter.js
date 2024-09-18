@@ -35,6 +35,10 @@ export default class BoardPresenter {
     this.#eventPresenters.get(updatedEvent.eventData.event.id).init(updatedEvent);
   };
 
+  #handleModeChange = () => {
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
+
   #renderSort() {
     render(new SortView, this.#boardComponent.element);
   }
@@ -46,7 +50,8 @@ export default class BoardPresenter {
   #renderEvent(eventData, typeOffers, allTypes){
     const eventPresenter = new EventPresenter({
       eventListContainer: this.#eventListComponent.element,
-      onDataChange: this.#handleEventChange
+      onDataChange: this.#handleEventChange,
+      onModeChange: this.#handleModeChange,
     });
 
     eventPresenter.init({eventData, typeOffers, allTypes});
