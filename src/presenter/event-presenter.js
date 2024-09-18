@@ -4,6 +4,7 @@ import FormEditEventView from '../view/form-edit-event-view';
 
 export default class EventPresenter{
   #eventListContainer = null;
+  #handleDataChange = null;
 
   #eventComponent = null;
   #eventEditComponent = null;
@@ -12,8 +13,9 @@ export default class EventPresenter{
   #typeOffers = null;
   #allTypes = null;
 
-  constructor({eventListContainer}) {
+  constructor({eventListContainer, onDataChange}) {
     this.#eventListContainer = eventListContainer;
+    this.#handleDataChange = onDataChange;
   }
 
   init({eventData, typeOffers, allTypes}){
@@ -27,6 +29,7 @@ export default class EventPresenter{
     this.#eventComponent = new EventItemView({
       eventData: this.#eventData,
       onEditClick: this.#handleEditClick,
+      onFavoriteClick: this.#handleFavoriteClick,
     });
 
     this.#eventEditComponent = new FormEditEventView({
@@ -42,11 +45,11 @@ export default class EventPresenter{
       return;
     }
 
-    if (this.#eventListContainer.conitains(prevEventComponent.element)) {
+    if (this.#eventListContainer.contains(prevEventComponent.element)) {
       replace(this.#eventComponent, prevEventComponent);
     }
 
-    if (this.#eventListContainer.conitains(prevEventEditComponent.element)) {
+    if (this.#eventListContainer.contains(prevEventEditComponent.element)) {
       replace(this.#eventEditComponent, prevEventEditComponent);
     }
 
@@ -58,6 +61,15 @@ export default class EventPresenter{
     remove(this.#eventComponent);
     remove(this.#eventEditComponent);
   }
+
+  #handleFavoriteClick = () => {
+    const event = {...this.#eventData.event, isFavorite: !this.#eventData.event.isFavorite};
+    this.#handleDataChange({
+      eventData:{...this.#eventData, event},
+      typeOffers: this.#typeOffers,
+      allTypes: this.#allTypes
+    });
+  };
 
   #handleEditClick = () => {
     this.#replaceEventToForm();

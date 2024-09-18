@@ -4,13 +4,15 @@ import BoardView from '../view/board-view.js';
 import { render } from '../framework/render.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
 import EventPresenter from './event-presenter.js';
+import { updateItem } from '../utils/common.js';
 
 export default class BoardPresenter {
   #boardComponent = new BoardView;
   #eventListComponent = new EventListView;
   #boardContainer = null;
   #boardModel = null;
-  #boardEvents = null;
+  #boardEvents = [];
+  #eventPresenters = new Map();
 
   constructor({boardContainer, boardModel}) {
     this.#boardContainer = boardContainer;
@@ -28,6 +30,11 @@ export default class BoardPresenter {
     render(this.#eventListComponent, this.#boardContainer);
   }
 
+  #handleEventChange = (updatedEvent) => {
+    this.#boardEvents = updateItem(this.#boardEvents, updatedEvent.eventData.event);
+    this.#eventPresenters.get(updatedEvent.eventData.event.id).init(updatedEvent);
+  };
+
   #renderSort() {
     render(new SortView, this.#boardComponent.element);
   }
@@ -37,12 +44,13 @@ export default class BoardPresenter {
   }
 
   #renderEvent(eventData, typeOffers, allTypes){
-
     const eventPresenter = new EventPresenter({
-      eventListContainer: this.#eventListComponent.element
+      eventListContainer: this.#eventListComponent.element,
+      onDataChange: this.#handleEventChange
     });
 
     eventPresenter.init({eventData, typeOffers, allTypes});
+    this.#eventPresenters.set(eventData.event.id, eventPresenter);
   }
 
   #renderEvents() {
@@ -53,6 +61,11 @@ export default class BoardPresenter {
 
       this.#renderEvent(eventData, typeOffers, allTypes);
     }
+  }
+
+  #clearEventList() {
+    this.#eventPresenters.forEach((presenter) => presenter.destroy());
+    this.#eventPresenters.clear();
   }
 
   #renderBoard(){

@@ -1,11 +1,12 @@
 import { mockDestinations} from '../mock/mock-destinations';
 import { mockOffers } from '../mock/mock-offers';
-import { getRandomMockPointEvent } from '../mock/mock-point-events';
+import { getRandomMockPointEvent} from '../mock/mock-point-events';
+import { getUniqueElements } from '../utils/common';
 
 const EVENTS_COUNT = 10;
-
 export default class BoardModel {
-  #events = Array.from({length: EVENTS_COUNT}, getRandomMockPointEvent);
+  // #events = Array.from({length: EVENTS_COUNT}, getRandomMockPointEvent);
+  #events = getUniqueElements(EVENTS_COUNT, getRandomMockPointEvent);
   #destinations = mockDestinations;
   #offers = mockOffers;
 
