@@ -10,17 +10,24 @@ export default class BoardPresenter {
   #boardComponent = new BoardView;
   #eventListComponent = new EventListView;
   #boardContainer = null;
-  #boardModel = null;
+
+  #eventsModel = null;
+  #destinationsModel = null;
+  #offersModel = null;
+
+
   #boardEvents = [];
   #eventPresenters = new Map();
 
-  constructor({boardContainer, boardModel}) {
+  constructor({boardContainer, eventsModel, destinationsModel, offersModel}) {
     this.#boardContainer = boardContainer;
-    this.#boardModel = boardModel;
+    this.#eventsModel = eventsModel;
+    this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
   }
 
   init() {
-    this.#boardEvents = [...this.#boardModel.events];
+    this.#boardEvents = [...this.#eventsModel.events];
 
     this.#renderBoard();
   }
@@ -60,9 +67,15 @@ export default class BoardPresenter {
 
   #renderEvents() {
     for (let i = 0; i < this.#boardEvents.length; i++) {
-      const eventData = this.#boardModel.getEventData(this.#boardEvents[i]);
-      const typeOffers = this.#boardModel.getOffersByType(this.#boardEvents[i].type).offers;
-      const allTypes = this.#boardModel.allTypes;
+      const event = this.#boardEvents[i];
+      const eventData = {
+        event,
+        offers: [...this.#offersModel.getOffersById(event.type, event.offers)],
+        destination: this.#destinationsModel.getDestinationById(event.destination)
+      };
+
+      const typeOffers = this.#offersModel.getOffersByType(this.#boardEvents[i].type).offers;
+      const allTypes = this.#offersModel.allTypes;
 
       this.#renderEvent(eventData, typeOffers, allTypes);
     }
