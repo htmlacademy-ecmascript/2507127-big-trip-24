@@ -70,7 +70,6 @@ function createEventOffersTemplate(offers) {
 }
 
 function createEventButtonsTemplate({isFavorite}) {
-
   return `
     <button class="event__favorite-btn ${isFavorite ? 'event__favorite-btn--active' : ''}" type="button">
       <span class="visually-hidden">Add to favorite</span>
@@ -102,25 +101,33 @@ function createEventItemTemplate({event, offers, destination}) {
 export default class EventItemView extends AbstractView{
   #eventData = null;
   #handleEditClick = null;
+  #handleFavoriteClick = null;
 
-  constructor({eventData, onEditClick}) {
+  constructor({eventData, onEditClick, onFavoriteClick}) {
     super();
     this.#eventData = eventData;
     this.#handleEditClick = onEditClick;
+    this.#handleFavoriteClick = onFavoriteClick;
 
-    this.setEventListener();
+    this.setEventListeners();
   }
 
   get template() {
     return createEventItemTemplate(this.#eventData);
   }
 
-  setEventListener(){
+  setEventListeners(){
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this.element.querySelector('.event__favorite-btn').addEventListener('click', this.#favoriteClickHandler);
   }
 
   #editClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleEditClick();
+  };
+
+  #favoriteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFavoriteClick();
   };
 }

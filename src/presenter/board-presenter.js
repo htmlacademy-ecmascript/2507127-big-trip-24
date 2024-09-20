@@ -1,17 +1,18 @@
 import SortView from '../view/sort-view.js';
 import EventListView from '../view/events-list-view.js';
-import EventItemView from '../view/event-item-view.js';
-import FormEditEventView from '../view/form-edit-event-view.js';
 import BoardView from '../view/board-view.js';
-import { render, replace } from '../framework/render.js';
+import { render } from '../framework/render.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
+import EventPresenter from './event-presenter.js';
+import { updateItem } from '../utils/common.js';
 
 export default class BoardPresenter {
   #boardComponent = new BoardView;
   #eventListComponent = new EventListView;
   #boardContainer = null;
   #boardModel = null;
-  #boardEvents = null;
+  #boardEvents = [];
+  #eventPresenters = new Map();
 
   constructor({boardContainer, boardModel}) {
     this.#boardContainer = boardContainer;
@@ -24,63 +25,40 @@ export default class BoardPresenter {
     this.#renderBoard();
   }
 
-  #renderEvent(eventData, typeOffers, allTypes){
-    const escKeyDownHandler = (evt) => {
-      if(evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceFormToEvent();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    const onEditClick = () => {
-      replaceEventToForm();
-      document.addEventListener('keydown', escKeyDownHandler);
-    };
-
-    const eventComponent = new EventItemView({
-      eventData,
-      onEditClick,
-    });
-
-    const onFormSubmit = () => {
-      replaceFormToEvent();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    };
-
-    const onFormClose = () => {
-      replaceFormToEvent();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    };
-
-    const eventEditComponent = new FormEditEventView({
-      eventData,
-      typeOffers,
-      allTypes,
-      onFormSubmit,
-      onFormClose,
-    });
-
-    function replaceEventToForm(){
-      replace(eventEditComponent, eventComponent);
-    }
-    function replaceFormToEvent(){
-      replace(eventComponent, eventEditComponent);
-    }
-
-    render(eventComponent, this.#eventListComponent.element);
-  }
-
-  #renderBoard(){
+  #renderContainers(){
     render(this.#boardComponent, this.#boardContainer);
     render(this.#eventListComponent, this.#boardContainer);
+  }
+
+  #handleEventChange = (updatedEvent) => {
+    this.#boardEvents = updateItem(this.#boardEvents, updatedEvent.eventData.event);
+    this.#eventPresenters.get(updatedEvent.eventData.event.id).init(updatedEvent);
+  };
+
+  #handleModeChange = () => {
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #renderSort() {
     render(new SortView, this.#boardComponent.element);
+  }
 
-    if (this.#boardEvents.length === 0) {
-      render(new EmptyEventsListView, this.#boardContainer);
-      return;
-    }
+  #renderEmptyList(){
+    render(new EmptyEventsListView, this.#boardContainer);
+  }
 
+  #renderEvent(eventData, typeOffers, allTypes){
+    const eventPresenter = new EventPresenter({
+      eventListContainer: this.#eventListComponent.element,
+      onDataChange: this.#handleEventChange,
+      onModeChange: this.#handleModeChange,
+    });
+
+    eventPresenter.init({eventData, typeOffers, allTypes});
+    this.#eventPresenters.set(eventData.event.id, eventPresenter);
+  }
+
+  #renderEvents() {
     for (let i = 0; i < this.#boardEvents.length; i++) {
       const eventData = this.#boardModel.getEventData(this.#boardEvents[i]);
       const typeOffers = this.#boardModel.getOffersByType(this.#boardEvents[i].type).offers;
@@ -88,6 +66,23 @@ export default class BoardPresenter {
 
       this.#renderEvent(eventData, typeOffers, allTypes);
     }
+  }
+
+  #clearEventList() {
+    this.#eventPresenters.forEach((presenter) => presenter.destroy());
+    this.#eventPresenters.clear();
+  }
+
+  #renderBoard(){
+    this.#renderContainers();
+    this.#renderSort();
+
+    if (this.#boardEvents.length === 0) {
+      this.#renderEmptyList();
+      return;
+    }
+
+    this.#renderEvents();
   }
 }
 
