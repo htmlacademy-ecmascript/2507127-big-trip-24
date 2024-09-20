@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import {TimeFormat } from '../const.js';
-import { humanizeDate } from '../utils.js';
+import {TimeFormat } from '../utils/const.js';
+import { humanizeDate } from '../utils/date.js';
 
 
 function createEventTypeItemTemplate(type) {
@@ -53,6 +53,7 @@ function createFormHeaderEventNameTemplate(event, destination){
 function createFormHeaderTimeTemplate(event){
   const startTime = humanizeDate(event.dateFrom, TimeFormat.FORM_EDIT);
   const endTime = humanizeDate(event.dateTo, TimeFormat.FORM_EDIT);
+
   return `
     <div class="event__field-group  event__field-group--time">
       <label class="visually-hidden" for="event-start-time-1">From</label>
@@ -161,7 +162,8 @@ function createEventDetailsTemplate(offerList, destination) {
   `;
 }
 
-function createFormAddEventTemplate(event, destination, typeOffers, allTypes) {
+function createFormAddEventTemplate(eventData, typeOffers, allTypes) {
+  const {event, destination} = eventData;
   return `
     <form class="event event--edit" action="#" method="post">
       ${createFormHeaderTemplate(event, destination, allTypes)}
@@ -172,9 +174,7 @@ function createFormAddEventTemplate(event, destination, typeOffers, allTypes) {
 
 
 export default class FormEditEventView extends AbstractView{
-  #event = null;
-  #offers = null;
-  #destination = null;
+  #eventData = null;
   #typeOffers = null;
   #allTypes = null;
   #handleFormSubmit = null;
@@ -182,23 +182,17 @@ export default class FormEditEventView extends AbstractView{
 
   constructor({eventData, typeOffers, allTypes, onFormSubmit, onFormClose}) {
     super();
-    const {event, offers, destination} = eventData;
-    this.#event = event;
-    this.#offers = offers;
-    this.#destination = destination;
+    this.#eventData = eventData;
     this.#typeOffers = typeOffers;
     this.#allTypes = allTypes;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleFormClose = onFormClose;
 
-    //querySelector возвращает null, потому заменил на closest
-    this.element.closest('form').addEventListener('submit', this.#formSubmitHandler);
-
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
+    this.setEventListeners();
   }
 
   get template() {
-    return createFormAddEventTemplate(this.#event, this.#destination, this.#typeOffers, this.#allTypes);
+    return createFormAddEventTemplate(this.#eventData, this.#typeOffers, this.#allTypes);
   }
 
   #formSubmitHandler = (evt) => {
@@ -210,5 +204,11 @@ export default class FormEditEventView extends AbstractView{
     evt.preventDefault();
     this.#handleFormClose();
   };
+
+  setEventListeners() {
+    //querySelector возвращает null, потому заменил на closest
+    this.element.closest('.event.event--edit').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
+  }
 
 }

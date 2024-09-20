@@ -1,5 +1,10 @@
 
-const FILTER_TYPES = ['everything', 'future', 'present', 'past'];
+const FiltersEvent = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past',
+};
 
 const SORT_TYPE = ['day', 'event', 'time', 'price', 'offers'];
 
@@ -12,4 +17,4 @@ const TimeFormat = {
 };
 
 
-export { FILTER_TYPES, SORT_TYPE, TimeFormat };
+export { SORT_TYPE, TimeFormat, FiltersEvent };

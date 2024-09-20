@@ -2,7 +2,7 @@ import { mockDestinations} from '../mock/mock-destinations';
 import { mockOffers } from '../mock/mock-offers';
 import { getRandomMockPointEvent } from '../mock/mock-point-events';
 
-const EVENTS_COUNT = 4;
+const EVENTS_COUNT = 10;
 
 export default class BoardModel {
   #events = Array.from({length: EVENTS_COUNT}, getRandomMockPointEvent);
@@ -40,11 +40,11 @@ export default class BoardModel {
     return targetOffers.filter((item) => offersId.find((id) => item.id === id));
   }
 
-  getEventData(event, model) {
+  getEventData(event) {
     return {
       event,
-      offers: [...model.getOffersById(event.type, event.offers)],
-      destination: model.getDestinationById(event.destination)
+      offers: [...this.getOffersById(event.type, event.offers)],
+      destination: this.getDestinationById(event.destination)
     };
   }
 }

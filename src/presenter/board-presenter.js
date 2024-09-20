@@ -4,12 +4,14 @@ import EventItemView from '../view/event-item-view.js';
 import FormEditEventView from '../view/form-edit-event-view.js';
 import BoardView from '../view/board-view.js';
 import { render, replace } from '../framework/render.js';
+import EmptyEventsListView from '../view/empty-events-list-view.js';
 
 export default class BoardPresenter {
   #boardComponent = new BoardView;
   #eventListComponent = new EventListView;
   #boardContainer = null;
   #boardModel = null;
+  #boardEvents = null;
 
   constructor({boardContainer, boardModel}) {
     this.#boardContainer = boardContainer;
@@ -17,7 +19,7 @@ export default class BoardPresenter {
   }
 
   init() {
-    this.boardEvents = [...this.#boardModel.events];
+    this.#boardEvents = [...this.#boardModel.events];
 
     this.#renderBoard();
   }
@@ -74,9 +76,14 @@ export default class BoardPresenter {
     render(this.#eventListComponent, this.#boardContainer);
     render(new SortView, this.#boardComponent.element);
 
-    for (let i = 0; i < this.boardEvents.length; i++) {
-      const eventData = this.#boardModel.getEventData(this.boardEvents[i], this.#boardModel);
-      const typeOffers = this.#boardModel.getOffersByType(this.boardEvents[i].type).offers;
+    if (this.#boardEvents.length === 0) {
+      render(new EmptyEventsListView, this.#boardContainer);
+      return;
+    }
+
+    for (let i = 0; i < this.#boardEvents.length; i++) {
+      const eventData = this.#boardModel.getEventData(this.#boardEvents[i]);
+      const typeOffers = this.#boardModel.getOffersByType(this.#boardEvents[i].type).offers;
       const allTypes = this.#boardModel.allTypes;
 
       this.#renderEvent(eventData, typeOffers, allTypes);
