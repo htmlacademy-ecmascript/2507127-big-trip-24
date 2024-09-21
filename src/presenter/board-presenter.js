@@ -6,7 +6,7 @@ import EmptyEventsListView from '../view/empty-events-list-view.js';
 import EventPresenter from './event-presenter.js';
 import { updateItem } from '../utils/common.js';
 import { SortType } from '../utils/const.js';
-import { sortByDay, sortByEvent, sortByTime, sortByPrice, sortByOffers} from '../utils/event.js';
+import { sortEventsData } from '../utils/sort.js';
 
 export default class BoardPresenter {
   #boardComponent = new BoardView;
@@ -51,26 +51,10 @@ export default class BoardPresenter {
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
-  #sortEvents(sort){
-    switch(sort){
-      case SortType.DAY:
-        this.#boardEvents.sort(sortByDay);
-        break;
-      case SortType.EVENT:
-        this.#boardEvents.sort(sortByEvent);
-        break;
-      case SortType.TIME:
-        this.#boardEvents.sort(sortByTime);
-        break;
-      case SortType.PRICE:
-        this.#boardEvents.sort(sortByPrice);
-        break;
-      case SortType.OFFERS:
-        this.#boardEvents.sort(sortByOffers);
-        break;
-    }
+  #sortEvents(sortType){
+    sortEventsData(this.#boardEvents, sortType);
 
-    this.#currentSortType = sort;
+    this.#currentSortType = sortType;
 
     this.#clearSort();
     if(this.#sortComponent !== null){
@@ -112,17 +96,13 @@ export default class BoardPresenter {
     this.#eventPresenters.set(eventData.event.id, eventPresenter);
   }
 
-  #getDesination(event){
-    return this.#destinationsModel.getDestinationById(event.destination);
-  }
-
   #renderEvents() {
     for (let i = 0; i < this.#boardEvents.length; i++) {
       const event = this.#boardEvents[i];
       const eventData = {
         event,
         offers: [...this.#offersModel.getOffersById(event.type, event.offers)],
-        destination: this.#getDesination(event),
+        destination: this.#destinationsModel.getDestinationById(event.destination),
       };
 
       const typeOffers = this.#offersModel.getOffersByType(this.#boardEvents[i].type).offers;
