@@ -12,9 +12,9 @@ function createEventTypeItemTemplate(type) {
   `;
 }
 
-const addEventTypeList = (types) => types.map((type) => createEventTypeItemTemplate(type)).join('');
-
 function createFormHeaderTypeTemplate(event, allTypes){
+  const eventTypeList = allTypes.map((type) => createEventTypeItemTemplate(type)).join('');
+
   return `
     <div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
@@ -27,7 +27,7 @@ function createFormHeaderTypeTemplate(event, allTypes){
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
 
-                        ${addEventTypeList(allTypes)}
+                        ${eventTypeList}
                       </fieldset>
                     </div>
                   </div>
@@ -118,13 +118,13 @@ function createEventPhotoTemplate({src, description}){
   return `<img class="event__photo" src=${src} alt="${description}">`;
 }
 
-const addPhotoList = (pictures) => pictures.map((item) => createEventPhotoTemplate(item)).join('');
-
 function createEventPhotoContainerTemplate({pictures}){
+  const photoList = pictures.map((item) => createEventPhotoTemplate(item)).join('');
+
   return `
     <div class="event__photos-container">
                       <div class="event__photos-tape">
-                      ${addPhotoList(pictures)}
+                      ${photoList}
                       </div>
                     </div>
   `;
@@ -139,8 +139,6 @@ function createEventDestinationTemplate(destination) {
                   </section>
   `;
 }
-
-const addOfferList = (offers) => offers.map((offer) => createEventOfferTemplate(offer)).join('');
 
 function createOfferListTemplate(offerList) {
   return `
@@ -164,10 +162,12 @@ function createEventDetailsTemplate(offerList, destination) {
 
 function createFormAddEventTemplate(eventData, typeOffers, allTypes) {
   const {event, destination} = eventData;
+  const offerList = typeOffers.map((offer) => createEventOfferTemplate(offer)).join('');
+
   return `
     <form class="event event--edit" action="#" method="post">
       ${createFormHeaderTemplate(event, destination, allTypes)}
-      ${createEventDetailsTemplate(addOfferList(typeOffers), createEventDestinationTemplate(destination))}
+      ${createEventDetailsTemplate(offerList, createEventDestinationTemplate(destination))}
     </form>
   `;
 }

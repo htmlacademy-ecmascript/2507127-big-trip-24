@@ -12,8 +12,6 @@ function createOffersListTemplate({title, price}){
   `;
 }
 
-const renderOffersList = (offers) => offers.map((offer) => createOffersListTemplate(offer)).join('');
-
 function createEventDateTemplate({dateFrom}) {
   return `
     <time class="event__date" datetime=${humanizeDate(dateFrom, TimeFormat.DATE_FULL)}>${humanizeDate(dateFrom, TimeFormat.DATE)}</time>
@@ -61,10 +59,12 @@ function createEventPriceTemplate({basePrice}) {
 }
 
 function createEventOffersTemplate(offers) {
+  const offersList = offers.map((offer) => createOffersListTemplate(offer)).join('');
+
   return `
     <h4 class="visually-hidden">Offers:</h4>
     <ul class="event__selected-offers">
-      ${offers.length ? renderOffersList(offers) : ''}
+      ${offers.length ? offersList : ''}
     </ul>
   `;
 }

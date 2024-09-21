@@ -18,6 +18,7 @@ const offersModel = new OffersModel();
 const boardPresenter = new BoardPresenter({boardContainer: bodyMainContainer, eventsModel, destinationsModel, offersModel});
 
 const filters = generateFilter(eventsModel.events);
+
 render(new FiltersView({filters}), siteTripControlsFilters);
 
 boardPresenter.init();
