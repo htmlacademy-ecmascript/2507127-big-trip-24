@@ -1,5 +1,5 @@
 import { FiltersEvent } from './const.js';
-import { isEventExpired, isEventFuture, isEventActive } from './date.js';
+import { isEventExpired, isEventFuture, isEventActive } from './event.js';
 
 const filter = {
   [FiltersEvent.EVERYTHING]: (events) => events,

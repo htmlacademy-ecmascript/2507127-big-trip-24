@@ -1,6 +1,6 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import {TimeFormat } from '../utils/const.js';
-import { humanizeDate } from '../utils/date.js';
+import { humanizeDate } from '../utils/event.js';
 
 
 function createEventTypeItemTemplate(type) {
@@ -206,8 +206,7 @@ export default class FormEditEventView extends AbstractView{
   };
 
   setEventListeners() {
-    //querySelector возвращает null, потому заменил на closest
-    this.element.closest('.event.event--edit').addEventListener('submit', this.#formSubmitHandler);
+    this.element.addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
   }
 
