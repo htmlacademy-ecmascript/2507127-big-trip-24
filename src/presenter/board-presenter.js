@@ -1,7 +1,7 @@
 import SortView from '../view/sort-view.js';
 import EventListView from '../view/events-list-view.js';
 import BoardView from '../view/board-view.js';
-import { render } from '../framework/render.js';
+import { remove, render } from '../framework/render.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
 import EventPresenter from './event-presenter.js';
 import { updateItem } from '../utils/common.js';
@@ -71,6 +71,15 @@ export default class BoardPresenter {
     }
 
     this.#currentSortType = sort;
+
+    this.#clearSort();
+    if(this.#sortComponent !== null){
+      this.#renderSort();
+    }
+  }
+
+  #clearSort(){
+    remove(this.#sortComponent);
   }
 
   #handleSortTypeChange = (sortType) => {
