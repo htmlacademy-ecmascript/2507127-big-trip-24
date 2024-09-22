@@ -1,14 +1,17 @@
 import SortView from '../view/sort-view.js';
 import EventListView from '../view/events-list-view.js';
 import BoardView from '../view/board-view.js';
-import { render } from '../framework/render.js';
+import { remove, render } from '../framework/render.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
 import EventPresenter from './event-presenter.js';
 import { updateItem } from '../utils/common.js';
+import { SortType } from '../utils/const.js';
+import { sortEventsData } from '../utils/sort.js';
 
 export default class BoardPresenter {
   #boardComponent = new BoardView;
   #eventListComponent = new EventListView;
+  #sortComponent = null;
   #boardContainer = null;
 
   #eventsModel = null;
@@ -17,6 +20,7 @@ export default class BoardPresenter {
 
 
   #boardEvents = [];
+  #currentSortType = SortType.DAY;
   #eventPresenters = new Map();
 
   constructor({boardContainer, eventsModel, destinationsModel, offersModel}) {
@@ -28,6 +32,7 @@ export default class BoardPresenter {
 
   init() {
     this.#boardEvents = [...this.#eventsModel.events];
+    this.#sortEvents(this.#currentSortType);
 
     this.#renderBoard();
   }
@@ -46,8 +51,34 @@ export default class BoardPresenter {
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
+  #sortEvents(sortType){
+    sortEventsData(this.#boardEvents, sortType);
+
+    this.#currentSortType = sortType;
+
+    this.#clearSort();
+    if(this.#sortComponent !== null){
+      this.#renderSort();
+    }
+  }
+
+  #clearSort(){
+    remove(this.#sortComponent);
+  }
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortEvents(sortType);
+    this.#clearEventList();
+    this.#renderEvents();
+  };
+
   #renderSort() {
-    render(new SortView, this.#boardComponent.element);
+    this.#sortComponent = new SortView({currentSortType: this.#currentSortType, onSortTypeChange: this.#handleSortTypeChange});
+    render(this.#sortComponent, this.#boardComponent.element);
   }
 
   #renderEmptyList(){
@@ -71,7 +102,7 @@ export default class BoardPresenter {
       const eventData = {
         event,
         offers: [...this.#offersModel.getOffersById(event.type, event.offers)],
-        destination: this.#destinationsModel.getDestinationById(event.destination)
+        destination: this.#destinationsModel.getDestinationById(event.destination),
       };
 
       const typeOffers = this.#offersModel.getOffersByType(this.#boardEvents[i].type).offers;

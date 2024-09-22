@@ -17,12 +17,11 @@ function createFilterItemTemplate({type, count}) {
 `;
 }
 
-
-const addFiltersList = (filters) => filters.map((filter) => createFilterItemTemplate(filter)).join('');
-
 function createFiltersTemplate(filters) {
+  const filtersList = filters.map((filter) => createFilterItemTemplate(filter)).join('');
+
   return `<form class="trip-filters" action="#" method="get">
-  ${addFiltersList(filters)}
+  ${filtersList}
   <button class="visually-hidden" type="submit">Accept filter</button>
           </form>`;
 }

@@ -43,5 +43,4 @@ function isEventExpired (event) {
   return event.dateTo && dayjs().isAfter(event.dateTo, 'D');
 }
 
-
-export { humanizeDate, getTimeDifference, isEventFuture, isEventExpired, isEventActive };
+export { humanizeDate, getTimeDifference, isEventFuture, isEventExpired, isEventActive};

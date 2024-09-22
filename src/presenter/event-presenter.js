@@ -17,7 +17,7 @@ export default class EventPresenter{
 
   #eventData = null;
   #typeOffers = null;
-  #allTypes = null;
+  #allTypes = [];
 
   #mode = mode.DEFAULT;
 
