@@ -17,7 +17,10 @@ export default class EventPresenter{
 
   #eventData = null;
   #typeOffers = null;
+  #allOffers = [];
   #allTypes = [];
+  #destinations = [];
+  #destinationNames = null;
 
   #mode = mode.DEFAULT;
 
@@ -27,10 +30,13 @@ export default class EventPresenter{
     this.#handleModeChange = onModeChange;
   }
 
-  init({eventData, typeOffers, allTypes}){
+  init({eventData, typeOffers, allOffers, allTypes, destinations, destinationNames}){
     this.#eventData = eventData;
     this.#typeOffers = typeOffers;
+    this.#allOffers = allOffers;
     this.#allTypes = allTypes;
+    this.#destinations = destinations;
+    this.#destinationNames = destinationNames;
 
     const prevEventComponent = this.#eventComponent;
     const prevEventEditComponent = this.#eventEditComponent;
@@ -43,8 +49,10 @@ export default class EventPresenter{
 
     this.#eventEditComponent = new FormEditEventView({
       eventData: this.#eventData,
-      typeOffers: this.#typeOffers,
+      allOffers: this.#allOffers,
       allTypes: this.#allTypes,
+      destinations: this.#destinations,
+      destinationNames: this.#destinationNames,
       onFormSubmit: this.#handleFormSubmit,
       onFormClose: this.#handleFormClose,
     });

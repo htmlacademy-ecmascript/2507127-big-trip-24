@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {TimeFormat } from '../utils/const.js';
 import { humanizeDate } from '../utils/event.js';
 
@@ -34,7 +34,13 @@ function createFormHeaderTypeTemplate(event, allTypes){
   `;
 }
 
-function createFormHeaderEventNameTemplate(event, destination){
+function createDestinationOptionTemplate(destination) {
+  return `<option value="${destination}"></option>`;
+}
+
+function createFormHeaderEventNameTemplate(event, destination, destinationNames){
+  const destinationOptions = destinationNames.map((destinationName) => createDestinationOptionTemplate(destinationName)).join('');
+
   return `
     <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
@@ -42,9 +48,7 @@ function createFormHeaderEventNameTemplate(event, destination){
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
                     <datalist id="destination-list-1">
-                      <option value="Amsterdam"></option>
-                      <option value="Geneva"></option>
-                      <option value="Chamonix"></option>
+                      ${destinationOptions}
                     </datalist>
                   </div>
   `;
@@ -87,12 +91,12 @@ function createFormHeaderButtonsTemplate(){
   `;
 }
 
-function createFormHeaderTemplate(event, destination, allTypes) {
+function createFormHeaderTemplate(event, destination, allTypes, destinationNames) {
 
   return `
     <header class="event__header">
                   ${createFormHeaderTypeTemplate(event, allTypes)}
-                  ${createFormHeaderEventNameTemplate(event, destination)}
+                  ${createFormHeaderEventNameTemplate(event, destination, destinationNames)}
                   ${createFormHeaderTimeTemplate(event)}
                   ${createFormHeaderPriceTemplate(event)}
                   ${createFormHeaderButtonsTemplate()}
@@ -101,7 +105,6 @@ function createFormHeaderTemplate(event, destination, allTypes) {
 }
 
 function createEventOfferTemplate(offer){
-
   return `
     <div class="event__offer-selector">
                         <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.name}-1" type="checkbox" name="event-offer-${offer.name}">
@@ -118,7 +121,7 @@ function createEventPhotoTemplate({src, description}){
   return `<img class="event__photo" src=${src} alt="${description}">`;
 }
 
-function createEventPhotoContainerTemplate({pictures}){
+function createEventPhotoContainerTemplate(pictures){
   const photoList = pictures.map((item) => createEventPhotoTemplate(item)).join('');
 
   return `
@@ -130,12 +133,13 @@ function createEventPhotoContainerTemplate({pictures}){
   `;
 }
 
-function createEventDestinationTemplate(destination) {
+function createEventDestinationTemplate({description, pictures}) {
+
   return `
     <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${destination.description}</p>
-                    ${destination.pictures.length > 0 ? createEventPhotoContainerTemplate(destination) : ''}
+                    <p class="event__destination-description">${description}</p>
+                    ${pictures.length > 0 ? createEventPhotoContainerTemplate(pictures) : ''}
                   </section>
   `;
 }
@@ -160,54 +164,90 @@ function createEventDetailsTemplate(offerList, destination) {
   `;
 }
 
-function createFormAddEventTemplate(eventData, typeOffers, allTypes) {
+function createFormAddEventTemplate({eventData, currentOffers, allTypes, destinationNames, currentDestination}) {
   const {event, destination} = eventData;
-  const offerList = typeOffers.map((offer) => createEventOfferTemplate(offer)).join('');
+  const offerList = currentOffers.map((offer) => createEventOfferTemplate(offer)).join('');
 
   return `
     <form class="event event--edit" action="#" method="post">
-      ${createFormHeaderTemplate(event, destination, allTypes)}
-      ${createEventDetailsTemplate(offerList, createEventDestinationTemplate(destination))}
+      ${createFormHeaderTemplate(event, destination, allTypes, destinationNames)}
+      ${createEventDetailsTemplate(offerList, createEventDestinationTemplate(currentDestination))}
     </form>
   `;
 }
 
 
-export default class FormEditEventView extends AbstractView{
-  #eventData = null;
-  #typeOffers = null;
-  #allTypes = null;
+export default class FormEditEventView extends AbstractStatefulView{
   #handleFormSubmit = null;
   #handleFormClose = null;
 
-  constructor({eventData, typeOffers, allTypes, onFormSubmit, onFormClose}) {
+  #currentDestination = null;
+  #currentOffers = null;
+  _currentEventType = null;
+
+  constructor({eventData, allOffers, allTypes, destinations, destinationNames, onFormSubmit, onFormClose}) {
     super();
-    this.#eventData = eventData;
-    this.#typeOffers = typeOffers;
-    this.#allTypes = allTypes;
+
+    this.#currentDestination = destinations.find((currentData) => currentData.name === eventData.destination.name);
+    this.#currentOffers = allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
+
+    this._setState(FormEditEventView.parseEventToState({
+      eventData,
+      allTypes,
+      destinations,
+      destinationNames,
+      currentOffers: this.#currentOffers,
+      currentDestination: this.#currentDestination}));
+
     this.#handleFormSubmit = onFormSubmit;
     this.#handleFormClose = onFormClose;
 
-    this.setEventListeners();
+    this.#setEventListeners();
   }
 
   get template() {
-    return createFormAddEventTemplate(this.#eventData, this.#typeOffers, this.#allTypes);
+    return createFormAddEventTemplate(this._state);
   }
+
+  static parseEventToState(event){
+    return {...event};
+  }
+
+  static parseStateToEvent(state, currentEventType){
+    const event = {...state};
+
+    if (currentEventType) {
+      event.eventData.event.type = currentEventType;
+    }
+
+  }
+
+  _restoreHandlers(){
+    this.#setEventListeners();
+  }
+
+  #setEventListeners() {
+    this.element.addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
+
+    this.element.querySelector('.event__type-group').addEventListener('click', this.#formChangeTypeHandler);
+  }
+
+  #formChangeTypeHandler = (evt) => {
+    const targetInput = evt.target.closest('.event__type-input');
+    if (targetInput) {
+      this.element.querySelector('.event__type-toggle').value = targetInput.value;
+      this._currentEventType = targetInput.value;
+    }
+  };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state, this._currentEventType));
   };
 
   #formCloseHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormClose();
   };
-
-  setEventListeners() {
-    this.element.addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
-  }
-
 }
