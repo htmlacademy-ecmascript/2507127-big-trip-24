@@ -49,6 +49,7 @@ export default class EventPresenter{
 
     this.#eventEditComponent = new FormEditEventView({
       eventData: this.#eventData,
+      typeOffers: this.#typeOffers,
       allOffers: this.#allOffers,
       allTypes: this.#allTypes,
       destinations: this.#destinations,

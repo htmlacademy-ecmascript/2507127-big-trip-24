@@ -164,9 +164,9 @@ function createEventDetailsTemplate(offerList, destination) {
   `;
 }
 
-function createFormAddEventTemplate({eventData, currentOffers, allTypes, destinationNames, currentDestination}) {
+function createFormAddEventTemplate({eventData, typeOffers, allTypes, destinationNames, currentDestination}) {
   const {event, destination} = eventData;
-  const offerList = currentOffers.map((offer) => createEventOfferTemplate(offer)).join('');
+  const offerList = typeOffers.map((offer) => createEventOfferTemplate(offer)).join('');
 
   return `
     <form class="event event--edit" action="#" method="post">
@@ -182,21 +182,20 @@ export default class FormEditEventView extends AbstractStatefulView{
   #handleFormClose = null;
 
   #currentDestination = null;
-  #currentOffers = null;
   _currentEventType = null;
 
-  constructor({eventData, allOffers, allTypes, destinations, destinationNames, onFormSubmit, onFormClose}) {
+  constructor({eventData, allOffers, typeOffers, allTypes, destinations, destinationNames, onFormSubmit, onFormClose}) {
     super();
 
     this.#currentDestination = destinations.find((currentData) => currentData.name === eventData.destination.name);
-    this.#currentOffers = allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
 
     this._setState(FormEditEventView.parseEventToState({
       eventData,
       allTypes,
       destinations,
       destinationNames,
-      currentOffers: this.#currentOffers,
+      typeOffers,
+      allOffers,
       currentDestination: this.#currentDestination}));
 
     this.#handleFormSubmit = onFormSubmit;
@@ -213,11 +212,14 @@ export default class FormEditEventView extends AbstractStatefulView{
     return {...event};
   }
 
-  static parseStateToEvent(state, currentEventType){
+  static parseStateToEvent({state, currentEventType}){
     const event = {...state};
+    const { allOffers, eventData} = event;
 
+    //Поле currentEventType, по задумке, должно очищаться при отмене изменений в редактировании
     if (currentEventType) {
       event.eventData.event.type = currentEventType;
+      event.typeOffers = allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
     }
 
   }
@@ -243,7 +245,10 @@ export default class FormEditEventView extends AbstractStatefulView{
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state, this._currentEventType));
+    this.#handleFormSubmit(FormEditEventView.parseStateToEvent({
+      state: this._state,
+      currentEventType: this._currentEventType,
+    }));
   };
 
   #formCloseHandler = (evt) => {
