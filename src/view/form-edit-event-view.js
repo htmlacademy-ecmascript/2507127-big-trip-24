@@ -214,12 +214,23 @@ export default class FormEditEventView extends AbstractStatefulView{
 
   static parseStateToEvent({state, currentEventType}){
     const event = {...state};
-    const { allOffers, eventData} = event;
+    const { allOffers, eventData, destinations } = event;
 
+    const destinationInput = document.querySelector('.event__input.event__input--destination');
+    const getCurrentOffers = () => allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
+    const getCurrentDestinationData = () => destinations.find((currentDestination) => currentDestination.name === destinationInput.value);
+
+    //Замена списка offers
     //Поле currentEventType, по задумке, должно очищаться при отмене изменений в редактировании
     if (currentEventType) {
-      event.eventData.event.type = currentEventType;
-      event.typeOffers = allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
+      eventData.event.type = currentEventType;
+      event.typeOffers = getCurrentOffers();
+    }
+
+    //Замена данных о пункте назначения
+    //Меняем данные только если пункт назначения был изменен
+    if (destinationInput.value !== eventData.destination.name) {
+      eventData.destination = getCurrentDestinationData();
     }
 
   }
