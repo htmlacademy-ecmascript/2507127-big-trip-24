@@ -182,7 +182,6 @@ export default class FormEditEventView extends AbstractStatefulView{
   #handleFormClose = null;
 
   #currentDestination = null;
-  _currentEventType = null;
 
   constructor({eventData, allOffers, typeOffers, allTypes, destinations, destinationNames, onFormSubmit, onFormClose}) {
     super();
@@ -212,17 +211,16 @@ export default class FormEditEventView extends AbstractStatefulView{
     return {...event};
   }
 
-  static parseStateToEvent({state, currentEventType}){
+  static parseStateToEvent(state){
     const event = {...state};
-    const { allOffers, eventData, destinations } = event;
+    const { allOffers, eventData, destinations, currentEventType } = event;
 
     const destinationInput = document.querySelector('.event__input.event__input--destination');
     const getCurrentOffers = () => allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
     const getCurrentDestinationData = () => destinations.find((currentDestination) => currentDestination.name === destinationInput.value);
 
     //Замена списка offers
-    //Поле currentEventType, по задумке, должно очищаться при отмене изменений в редактировании
-    if (currentEventType) {
+    if (currentEventType && currentEventType !== eventData.event.type) {
       eventData.event.type = currentEventType;
       event.typeOffers = getCurrentOffers();
     }
@@ -233,6 +231,9 @@ export default class FormEditEventView extends AbstractStatefulView{
       eventData.destination = getCurrentDestinationData();
     }
 
+    delete event.currentEventType;
+
+    return event;
   }
 
   _restoreHandlers(){
@@ -247,19 +248,18 @@ export default class FormEditEventView extends AbstractStatefulView{
   }
 
   #formChangeTypeHandler = (evt) => {
+    // evt.preventDefault();
     const targetInput = evt.target.closest('.event__type-input');
     if (targetInput) {
       this.element.querySelector('.event__type-toggle').value = targetInput.value;
-      this._currentEventType = targetInput.value;
+
+      this._setState({currentEventType: targetInput.value});
     }
   };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(FormEditEventView.parseStateToEvent({
-      state: this._state,
-      currentEventType: this._currentEventType,
-    }));
+    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state));
   };
 
   #formCloseHandler = (evt) => {
