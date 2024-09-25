@@ -12,21 +12,20 @@ function createEventTypeItemTemplate(type) {
   `;
 }
 
-function createFormHeaderTypeTemplate(event, allTypes){
+function createFormHeaderTypeTemplate(event, allTypes, currentEventType){
   const eventTypeList = allTypes.map((type) => createEventTypeItemTemplate(type)).join('');
 
   return `
     <div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
                       <span class="visually-hidden">Choose event type</span>
-                      <img class="event__type-icon" width="17" height="17" src="img/icons/${event.type}.png" alt="Event type icon">
+                      <img class="event__type-icon" width="17" height="17" src="img/icons/${currentEventType || event.type}.png" alt="Event type icon">
                     </label>
                     <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
-
                         ${eventTypeList}
                       </fieldset>
                     </div>
@@ -38,13 +37,13 @@ function createDestinationOptionTemplate(destination) {
   return `<option value="${destination}"></option>`;
 }
 
-function createFormHeaderEventNameTemplate(event, destination, destinationNames){
+function createFormHeaderEventNameTemplate(event, destination, destinationNames, currentEventType){
   const destinationOptions = destinationNames.map((destinationName) => createDestinationOptionTemplate(destinationName)).join('');
 
   return `
     <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
-                      ${event.type}
+                      ${currentEventType || event.type}
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
                     <datalist id="destination-list-1">
@@ -91,12 +90,12 @@ function createFormHeaderButtonsTemplate(){
   `;
 }
 
-function createFormHeaderTemplate(event, destination, allTypes, destinationNames) {
+function createFormHeaderTemplate(event, destination, allTypes, destinationNames, currentEventType) {
 
   return `
     <header class="event__header">
-                  ${createFormHeaderTypeTemplate(event, allTypes)}
-                  ${createFormHeaderEventNameTemplate(event, destination, destinationNames)}
+                  ${createFormHeaderTypeTemplate(event, allTypes, currentEventType)}
+                  ${createFormHeaderEventNameTemplate(event, destination, destinationNames, currentEventType)}
                   ${createFormHeaderTimeTemplate(event)}
                   ${createFormHeaderPriceTemplate(event)}
                   ${createFormHeaderButtonsTemplate()}
@@ -164,13 +163,13 @@ function createEventDetailsTemplate(offerList, destination) {
   `;
 }
 
-function createFormAddEventTemplate({eventData, typeOffers, allTypes, destinationNames, currentDestination}) {
+function createFormAddEventTemplate({eventData, typeOffers, allTypes, destinationNames, currentDestination, currentEventType}) {
   const {event, destination} = eventData;
   const offerList = typeOffers.map((offer) => createEventOfferTemplate(offer)).join('');
 
   return `
     <form class="event event--edit" action="#" method="post">
-      ${createFormHeaderTemplate(event, destination, allTypes, destinationNames)}
+      ${createFormHeaderTemplate(event, destination, allTypes, destinationNames, currentEventType)}
       ${createEventDetailsTemplate(offerList, createEventDestinationTemplate(currentDestination))}
     </form>
   `;
@@ -200,7 +199,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     this.#handleFormSubmit = onFormSubmit;
     this.#handleFormClose = onFormClose;
 
-    this.#setEventListeners();
+    this._restoreHandlers();
   }
 
   get template() {
@@ -218,6 +217,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     const destinationInput = document.querySelector('.event__input.event__input--destination');
     const getCurrentOffers = () => allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
     const getCurrentDestinationData = () => destinations.find((currentDestination) => currentDestination.name === destinationInput.value);
+
 
     //Замена списка offers
     if (currentEventType && currentEventType !== eventData.event.type) {
@@ -237,10 +237,6 @@ export default class FormEditEventView extends AbstractStatefulView{
   }
 
   _restoreHandlers(){
-    this.#setEventListeners();
-  }
-
-  #setEventListeners() {
     this.element.addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
 
@@ -248,12 +244,11 @@ export default class FormEditEventView extends AbstractStatefulView{
   }
 
   #formChangeTypeHandler = (evt) => {
-    // evt.preventDefault();
     const targetInput = evt.target.closest('.event__type-input');
     if (targetInput) {
       this.element.querySelector('.event__type-toggle').value = targetInput.value;
 
-      this._setState({currentEventType: targetInput.value});
+      this.updateElement({currentEventType: targetInput.value});
     }
   };
 
