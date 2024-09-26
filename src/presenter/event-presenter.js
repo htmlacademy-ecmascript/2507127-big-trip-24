@@ -111,8 +111,20 @@ export default class EventPresenter{
     this.#replaceEventToForm();
   };
 
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (event) => {
     this.#replaceFormToEvent();
+
+    this.#eventData = event.eventData;
+
+    //Ре-рендер эвент-поинта с обновленными данными
+    this.#handleDataChange({
+      eventData: this.#eventData,
+      typeOffers: this.#typeOffers,
+      allTypes: this.#allTypes,
+      allOffers: this.#allOffers,
+      destinations: this.#destinations,
+      destinationNames: this.#destinationNames,
+    });
   };
 
   #handleFormClose = () => {

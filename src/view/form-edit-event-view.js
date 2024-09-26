@@ -257,6 +257,7 @@ export default class FormEditEventView extends AbstractStatefulView{
       event.typeOffers = getCurrentOffers();
 
       //На данный момент лишь очищаю список выбранных офферов
+      eventData.offers = [];
       eventData.event.offers = [];
     }
 
