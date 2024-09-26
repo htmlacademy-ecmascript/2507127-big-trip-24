@@ -276,7 +276,9 @@ export default class FormEditEventView extends AbstractStatefulView{
 
   _restoreHandlers(){
     this.element.addEventListener('submit', this.#formSubmitHandler);
+
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCloseHandler);
 
     this.element.querySelector('.event__type-group').addEventListener('click', this.#formChangeTypeHandler);
     this.element.querySelector('.event__input.event__input--destination').addEventListener('change', this.#formChangeDestinationHandler);
