@@ -240,6 +240,12 @@ export default class FormEditEventView extends AbstractStatefulView{
 
   static parseStateToEvent(state){
     const event = {...state};
+
+    //Выход из функции при отсутствии изменений
+    if (!event.currentEventType && !event.currentDestinationName) {
+      return;
+    }
+
     const { allOffers, eventData, destinations, currentEventType, destinationNames } = event;
 
     //Удаление поля currentDestinationName, если оно не содержит корректного наименования

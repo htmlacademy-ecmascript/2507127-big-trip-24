@@ -114,6 +114,11 @@ export default class EventPresenter{
   #handleFormSubmit = (event) => {
     this.#replaceFormToEvent();
 
+    //Выход из функции, если в форму редактирования не внесли изменения
+    if (!event) {
+      return;
+    }
+
     this.#eventData = event.eventData;
 
     //Ре-рендер эвент-поинта с обновленными данными
