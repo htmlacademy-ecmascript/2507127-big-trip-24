@@ -231,26 +231,35 @@ export default class FormEditEventView extends AbstractStatefulView{
 
   static parseStateToEvent(state){
     const event = {...state};
-    const { allOffers, eventData, destinations, currentEventType } = event;
+    const { allOffers, eventData, destinations, currentEventType, destinationNames } = event;
 
-    const destinationInput = document.querySelector('.event__input.event__input--destination');
+    //Удаление поля currentDestinationName, если оно не содержит корректного наименования
+    if (!destinationNames.some((name) => name === event.currentDestinationName)) {
+      delete event.currentDestinationName;
+    }
+
+
     const getCurrentOffers = () => allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
-    const getCurrentDestinationData = () => destinations.find((destinationData) => destinationData.name === destinationInput.value);
-
+    const getCurrentDestinationData = () => destinations.find((destinationData) => destinationData.name === event.currentDestinationName);
 
     //Замена списка offers
     if (currentEventType && currentEventType !== eventData.event.type) {
       eventData.event.type = currentEventType;
       event.typeOffers = getCurrentOffers();
+
+      //На данный момент лишь очищаю список выбранных офферов
+      eventData.event.offers = [];
     }
 
     //Замена данных о пункте назначения
     //Меняем данные только если пункт назначения был изменен
-    if (destinationInput.value !== eventData.destination.name) {
+    if (event.currentDestinationName && event.currentDestinationName !== eventData.destination.name) {
       eventData.destination = getCurrentDestinationData();
+      eventData.event.destination = eventData.destination.id;
     }
 
     delete event.currentEventType;
+    delete event.currentDestinationName;
 
     return event;
   }
