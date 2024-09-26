@@ -50,8 +50,8 @@ export default class EventPresenter{
     this.#eventEditComponent = new FormEditEventView({
       eventData: this.#eventData,
       typeOffers: this.#typeOffers,
-      allOffers: this.#allOffers,
       allTypes: this.#allTypes,
+      allOffers: this.#allOffers,
       destinations: this.#destinations,
       destinationNames: this.#destinationNames,
       onFormSubmit: this.#handleFormSubmit,
@@ -91,7 +91,10 @@ export default class EventPresenter{
     this.#handleDataChange({
       eventData:{...this.#eventData, event},
       typeOffers: this.#typeOffers,
-      allTypes: this.#allTypes
+      allTypes: this.#allTypes,
+      allOffers: this.#allTypes,
+      destinations: this.#destinations,
+      destinationNames: this.#destinationNames,
     });
   };
 

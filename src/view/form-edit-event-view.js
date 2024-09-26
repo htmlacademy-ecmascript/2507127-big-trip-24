@@ -37,10 +37,11 @@ function createDestinationOptionTemplate(destination) {
   return `<option value="${destination}"></option>`;
 }
 
-function createFormHeaderEventNameTemplate(event, destination, destinationNames, currentEventType, currentDestinationName){
+function createFormHeaderEventNameTemplate({event, destination, destinationNames, currentEventType, currentDestinationName}){
+
   const destinationOptions = destinationNames.map((destinationName) => createDestinationOptionTemplate(destinationName)).join('');
 
-  //На случай, если пользователь введет название пункта назначения отсутствующего в списке
+  // На случай, если пользователь введет название пункта назначения отсутствующего в списке
   let destinationValue;
   if (currentDestinationName) {
     destinationValue = destinationNames.some((name) => name === currentDestinationName) ? currentDestinationName : null;
@@ -96,12 +97,12 @@ function createFormHeaderButtonsTemplate(){
   `;
 }
 
-function createFormHeaderTemplate(event, destination, allTypes, destinationNames, currentEventType, currentDestinationName) {
+function createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName}) {
 
   return `
     <header class="event__header">
                   ${createFormHeaderTypeTemplate(event, allTypes, currentEventType)}
-                  ${createFormHeaderEventNameTemplate(event, destination, destinationNames, currentEventType, currentDestinationName)}
+                  ${createFormHeaderEventNameTemplate({event, destination, destinationNames, currentEventType, currentDestinationName})}
                   ${createFormHeaderTimeTemplate(event)}
                   ${createFormHeaderPriceTemplate(event)}
                   ${createFormHeaderButtonsTemplate()}
@@ -192,7 +193,7 @@ function createFormAddEventTemplate({eventData, typeOffers, allOffers, allTypes,
 
   return `
     <form class="event event--edit" action="#" method="post">
-      ${createFormHeaderTemplate(event, destination, allTypes, destinationNames, currentEventType, currentDestinationName)}
+      ${createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName})}
       ${createEventDetailsTemplate(offersList, createEventDestinationTemplate(updatedDestination || destination))}
     </form>
   `;
