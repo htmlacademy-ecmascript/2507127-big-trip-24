@@ -163,10 +163,21 @@ function createEventDetailsTemplate(offerList, destination) {
   `;
 }
 
-function createFormAddEventTemplate({eventData, typeOffers, allTypes, destinationNames, currentDestination, destinations, currentEventType}) {
+function createFormAddEventTemplate({eventData, typeOffers, allOffers, allTypes, destinationNames, currentDestination, destinations, currentEventType}) {
   const {event, destination} = eventData;
-  const offerList = typeOffers.map((offer) => createEventOfferTemplate(offer)).join('');
 
+  let updatedOffers, initialOffers;
+
+  const getCurrentOffers = (offers) => offers.map((offer) => createEventOfferTemplate(offer)).join('');
+
+  if (currentEventType) {
+    const actualOffers = allOffers.find((offers) => offers.type === currentEventType).offers;
+    updatedOffers = getCurrentOffers(actualOffers) || [];
+  } else {
+    initialOffers = getCurrentOffers(typeOffers);
+  }
+
+  const offersList = updatedOffers || initialOffers;
 
   let stateDestinationData;
   if (currentDestination) {
@@ -176,7 +187,7 @@ function createFormAddEventTemplate({eventData, typeOffers, allTypes, destinatio
   return `
     <form class="event event--edit" action="#" method="post">
       ${createFormHeaderTemplate(event, destination, allTypes, destinationNames, currentEventType, currentDestination)}
-      ${createEventDetailsTemplate(offerList, createEventDestinationTemplate(stateDestinationData || destination))}
+      ${createEventDetailsTemplate(offersList, createEventDestinationTemplate(stateDestinationData || destination))}
     </form>
   `;
 }
