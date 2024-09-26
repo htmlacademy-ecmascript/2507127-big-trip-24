@@ -37,15 +37,21 @@ function createDestinationOptionTemplate(destination) {
   return `<option value="${destination}"></option>`;
 }
 
-function createFormHeaderEventNameTemplate(event, destination, destinationNames, currentEventType, currentDestination){
+function createFormHeaderEventNameTemplate(event, destination, destinationNames, currentEventType, currentDestinationName){
   const destinationOptions = destinationNames.map((destinationName) => createDestinationOptionTemplate(destinationName)).join('');
+
+  //На случай, если пользователь введет название пункта назначения отсутствующего в списке
+  let destinationValue;
+  if (currentDestinationName) {
+    destinationValue = destinationNames.some((name) => name === currentDestinationName) ? currentDestinationName : null;
+  }
 
   return `
     <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${currentEventType || event.type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${currentDestination || destination.name}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationValue || destination.name}" list="destination-list-1">
                     <datalist id="destination-list-1">
                       ${destinationOptions}
                     </datalist>
@@ -90,12 +96,12 @@ function createFormHeaderButtonsTemplate(){
   `;
 }
 
-function createFormHeaderTemplate(event, destination, allTypes, destinationNames, currentEventType, currentDestination) {
+function createFormHeaderTemplate(event, destination, allTypes, destinationNames, currentEventType, currentDestinationName) {
 
   return `
     <header class="event__header">
                   ${createFormHeaderTypeTemplate(event, allTypes, currentEventType)}
-                  ${createFormHeaderEventNameTemplate(event, destination, destinationNames, currentEventType, currentDestination)}
+                  ${createFormHeaderEventNameTemplate(event, destination, destinationNames, currentEventType, currentDestinationName)}
                   ${createFormHeaderTimeTemplate(event)}
                   ${createFormHeaderPriceTemplate(event)}
                   ${createFormHeaderButtonsTemplate()}
@@ -163,7 +169,7 @@ function createEventDetailsTemplate(offerList, destination) {
   `;
 }
 
-function createFormAddEventTemplate({eventData, typeOffers, allOffers, allTypes, destinationNames, currentDestination, destinations, currentEventType}) {
+function createFormAddEventTemplate({eventData, typeOffers, allOffers, allTypes, destinationNames, currentDestinationName, destinations, currentEventType}) {
   const {event, destination} = eventData;
 
   let updatedOffers, initialOffers;
@@ -179,15 +185,15 @@ function createFormAddEventTemplate({eventData, typeOffers, allOffers, allTypes,
 
   const offersList = updatedOffers || initialOffers;
 
-  let stateDestinationData;
-  if (currentDestination) {
-    stateDestinationData = destinations.find((currentData) => currentData.name === currentDestination);
+  let updatedDestination;
+  if (currentDestinationName) {
+    updatedDestination = destinations.find((currentData) => currentData.name === currentDestinationName);
   }
 
   return `
     <form class="event event--edit" action="#" method="post">
-      ${createFormHeaderTemplate(event, destination, allTypes, destinationNames, currentEventType, currentDestination)}
-      ${createEventDetailsTemplate(offersList, createEventDestinationTemplate(stateDestinationData || destination))}
+      ${createFormHeaderTemplate(event, destination, allTypes, destinationNames, currentEventType, currentDestinationName)}
+      ${createEventDetailsTemplate(offersList, createEventDestinationTemplate(updatedDestination || destination))}
     </form>
   `;
 }
@@ -229,7 +235,7 @@ export default class FormEditEventView extends AbstractStatefulView{
 
     const destinationInput = document.querySelector('.event__input.event__input--destination');
     const getCurrentOffers = () => allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
-    const getCurrentDestinationData = () => destinations.find((currentDestinationData) => currentDestinationData.name === destinationInput.value);
+    const getCurrentDestinationData = () => destinations.find((destinationData) => destinationData.name === destinationInput.value);
 
 
     //Замена списка offers
@@ -268,7 +274,7 @@ export default class FormEditEventView extends AbstractStatefulView{
 
   #formChangeDestinationHandler = (evt) => {
     evt.preventDefault();
-    this.updateElement({currentDestination: evt.target.value});
+    this.updateElement({currentDestinationName: evt.target.value});
   };
 
   #formSubmitHandler = (evt) => {
