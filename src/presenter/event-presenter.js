@@ -82,6 +82,15 @@ export default class EventPresenter{
 
   resetView(){
     if (this.#mode !== 'DEFAULT') {
+      //Под вопросом
+      this.#eventEditComponent.reset({
+        eventData: this.#eventData,
+        typeOffers: this.#typeOffers,
+        allTypes: this.#allTypes,
+        allOffers: this.#allOffers,
+        destinations: this.#destinations,
+        destinationNames: this.#destinationNames,
+      });
       this.#replaceFormToEvent();
     }
   }
@@ -92,7 +101,7 @@ export default class EventPresenter{
       eventData:{...this.#eventData, event},
       typeOffers: this.#typeOffers,
       allTypes: this.#allTypes,
-      allOffers: this.#allTypes,
+      allOffers: this.#allOffers,
       destinations: this.#destinations,
       destinationNames: this.#destinationNames,
     });
@@ -107,13 +116,28 @@ export default class EventPresenter{
   };
 
   #handleFormClose = () => {
+    this.#eventEditComponent.reset({
+      eventData: this.#eventData,
+      typeOffers: this.#typeOffers,
+      allTypes: this.#allTypes,
+      allOffers: this.#allOffers,
+      destinations: this.#destinations,
+      destinationNames: this.#destinationNames,
+    });
     this.#replaceFormToEvent();
-
   };
 
   #escKeyDownHandler = (evt) => {
     if(evt.key === 'Escape') {
       evt.preventDefault();
+      this.#eventEditComponent.reset({
+        eventData: this.#eventData,
+        typeOffers: this.#typeOffers,
+        allTypes: this.#allTypes,
+        allOffers: this.#allOffers,
+        destinations: this.#destinations,
+        destinationNames: this.#destinationNames,
+      });
       this.#replaceFormToEvent();
     }
   };

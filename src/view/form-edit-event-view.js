@@ -226,6 +226,14 @@ export default class FormEditEventView extends AbstractStatefulView{
     return createFormAddEventTemplate(this._state);
   }
 
+  reset(event){
+
+    delete this._state.currentEventType;
+    delete this._state.currentDestinationName;
+
+    this.updateElement(FormEditEventView.parseEventToState(event));
+  }
+
   static parseEventToState(event){
     return {...event};
   }
