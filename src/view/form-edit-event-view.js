@@ -1,7 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {TimeFormat } from '../utils/const.js';
 import { humanizeDate } from '../utils/event.js';
+import flatpickr from 'flatpickr';
 
+import 'flatpickr/dist/flatpickr.min.css';
 
 function createEventTypeItemTemplate(type) {
   return `
