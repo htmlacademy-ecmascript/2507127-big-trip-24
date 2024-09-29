@@ -85,14 +85,14 @@ export default class BoardPresenter {
     render(new EmptyEventsListView, this.#boardContainer);
   }
 
-  #renderEvent(eventData, typeOffers, allTypes){
+  #renderEvent(eventData, typeOffers, allTypes, destinations, destinationNames){
     const eventPresenter = new EventPresenter({
       eventListContainer: this.#eventListComponent.element,
       onDataChange: this.#handleEventChange,
       onModeChange: this.#handleModeChange,
     });
 
-    eventPresenter.init({eventData, typeOffers, allTypes});
+    eventPresenter.init({eventData, typeOffers, allOffers: this.#offersModel.offers, allTypes, destinations, destinationNames});
     this.#eventPresenters.set(eventData.event.id, eventPresenter);
   }
 
@@ -108,7 +108,10 @@ export default class BoardPresenter {
       const typeOffers = this.#offersModel.getOffersByType(this.#boardEvents[i].type).offers;
       const allTypes = this.#offersModel.allTypes;
 
-      this.#renderEvent(eventData, typeOffers, allTypes);
+      const destinations = this.#destinationsModel.destinations;
+      const destinationNames = this.#destinationsModel.destinationNames;
+
+      this.#renderEvent(eventData, typeOffers, allTypes, destinations, destinationNames);
     }
   }
 

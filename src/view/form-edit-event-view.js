@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {TimeFormat } from '../utils/const.js';
 import { humanizeDate } from '../utils/event.js';
 
@@ -12,21 +12,20 @@ function createEventTypeItemTemplate(type) {
   `;
 }
 
-function createFormHeaderTypeTemplate(event, allTypes){
+function createFormHeaderTypeTemplate(event, allTypes, currentEventType){
   const eventTypeList = allTypes.map((type) => createEventTypeItemTemplate(type)).join('');
 
   return `
     <div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
                       <span class="visually-hidden">Choose event type</span>
-                      <img class="event__type-icon" width="17" height="17" src="img/icons/${event.type}.png" alt="Event type icon">
+                      <img class="event__type-icon" width="17" height="17" src="img/icons/${currentEventType || event.type}.png" alt="Event type icon">
                     </label>
                     <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
                         <legend class="visually-hidden">Event type</legend>
-
                         ${eventTypeList}
                       </fieldset>
                     </div>
@@ -34,17 +33,28 @@ function createFormHeaderTypeTemplate(event, allTypes){
   `;
 }
 
-function createFormHeaderEventNameTemplate(event, destination){
+function createDestinationOptionTemplate(destination) {
+  return `<option value="${destination}"></option>`;
+}
+
+function createFormHeaderEventNameTemplate({event, destination, destinationNames, currentEventType, currentDestinationName}){
+
+  const destinationOptions = destinationNames.map((destinationName) => createDestinationOptionTemplate(destinationName)).join('');
+
+  // На случай, если пользователь введет название пункта назначения отсутствующего в списке
+  let destinationValue;
+  if (currentDestinationName) {
+    destinationValue = destinationNames.some((name) => name === currentDestinationName) ? currentDestinationName : null;
+  }
+
   return `
     <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
-                      ${event.type}
+                      ${currentEventType || event.type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationValue || destination.name}" list="destination-list-1">
                     <datalist id="destination-list-1">
-                      <option value="Amsterdam"></option>
-                      <option value="Geneva"></option>
-                      <option value="Chamonix"></option>
+                      ${destinationOptions}
                     </datalist>
                   </div>
   `;
@@ -87,12 +97,12 @@ function createFormHeaderButtonsTemplate(){
   `;
 }
 
-function createFormHeaderTemplate(event, destination, allTypes) {
+function createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName}) {
 
   return `
     <header class="event__header">
-                  ${createFormHeaderTypeTemplate(event, allTypes)}
-                  ${createFormHeaderEventNameTemplate(event, destination)}
+                  ${createFormHeaderTypeTemplate(event, allTypes, currentEventType)}
+                  ${createFormHeaderEventNameTemplate({event, destination, destinationNames, currentEventType, currentDestinationName})}
                   ${createFormHeaderTimeTemplate(event)}
                   ${createFormHeaderPriceTemplate(event)}
                   ${createFormHeaderButtonsTemplate()}
@@ -101,7 +111,6 @@ function createFormHeaderTemplate(event, destination, allTypes) {
 }
 
 function createEventOfferTemplate(offer){
-
   return `
     <div class="event__offer-selector">
                         <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.name}-1" type="checkbox" name="event-offer-${offer.name}">
@@ -118,7 +127,7 @@ function createEventPhotoTemplate({src, description}){
   return `<img class="event__photo" src=${src} alt="${description}">`;
 }
 
-function createEventPhotoContainerTemplate({pictures}){
+function createEventPhotoContainerTemplate(pictures){
   const photoList = pictures.map((item) => createEventPhotoTemplate(item)).join('');
 
   return `
@@ -130,12 +139,13 @@ function createEventPhotoContainerTemplate({pictures}){
   `;
 }
 
-function createEventDestinationTemplate(destination) {
+function createEventDestinationTemplate({description, pictures}) {
+
   return `
     <section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${destination.description}</p>
-                    ${destination.pictures.length > 0 ? createEventPhotoContainerTemplate(destination) : ''}
+                    <p class="event__destination-description">${description}</p>
+                    ${pictures.length > 0 ? createEventPhotoContainerTemplate(pictures) : ''}
                   </section>
   `;
 }
@@ -160,54 +170,147 @@ function createEventDetailsTemplate(offerList, destination) {
   `;
 }
 
-function createFormAddEventTemplate(eventData, typeOffers, allTypes) {
+function createFormAddEventTemplate({eventData, typeOffers, allOffers, allTypes, destinationNames, currentDestinationName, destinations, currentEventType}) {
   const {event, destination} = eventData;
-  const offerList = typeOffers.map((offer) => createEventOfferTemplate(offer)).join('');
+
+  let updatedOffers, initialOffers;
+
+  const getCurrentOffers = (offers) => offers.map((offer) => createEventOfferTemplate(offer)).join('');
+
+  if (currentEventType) {
+    const actualOffers = allOffers.find((offers) => offers.type === currentEventType).offers;
+    updatedOffers = getCurrentOffers(actualOffers) || [];
+  } else {
+    initialOffers = getCurrentOffers(typeOffers);
+  }
+
+  const offersList = updatedOffers || initialOffers;
+
+  let updatedDestination;
+  if (currentDestinationName) {
+    updatedDestination = destinations.find((currentData) => currentData.name === currentDestinationName);
+  }
 
   return `
     <form class="event event--edit" action="#" method="post">
-      ${createFormHeaderTemplate(event, destination, allTypes)}
-      ${createEventDetailsTemplate(offerList, createEventDestinationTemplate(destination))}
+      ${createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName})}
+      ${createEventDetailsTemplate(offersList, createEventDestinationTemplate(updatedDestination || destination))}
     </form>
   `;
 }
 
 
-export default class FormEditEventView extends AbstractView{
-  #eventData = null;
-  #typeOffers = null;
-  #allTypes = null;
+export default class FormEditEventView extends AbstractStatefulView{
   #handleFormSubmit = null;
   #handleFormClose = null;
 
-  constructor({eventData, typeOffers, allTypes, onFormSubmit, onFormClose}) {
+  constructor({eventData, allOffers, typeOffers, allTypes, destinations, destinationNames, onFormSubmit, onFormClose}) {
     super();
-    this.#eventData = eventData;
-    this.#typeOffers = typeOffers;
-    this.#allTypes = allTypes;
+
+    this._setState(FormEditEventView.parseEventToState({
+      eventData,
+      allTypes,
+      destinations,
+      destinationNames,
+      typeOffers,
+      allOffers,
+    }));
+
     this.#handleFormSubmit = onFormSubmit;
     this.#handleFormClose = onFormClose;
 
-    this.setEventListeners();
+    this._restoreHandlers();
   }
 
   get template() {
-    return createFormAddEventTemplate(this.#eventData, this.#typeOffers, this.#allTypes);
+    return createFormAddEventTemplate(this._state);
   }
+
+  reset(event){
+
+    delete this._state.currentEventType;
+    delete this._state.currentDestinationName;
+
+    this.updateElement(FormEditEventView.parseEventToState(event));
+  }
+
+  static parseEventToState(event){
+    return {...event};
+  }
+
+  static parseStateToEvent(state){
+    const event = {...state};
+
+    //Выход из функции при отсутствии изменений
+    if (!event.currentEventType && !event.currentDestinationName) {
+      return;
+    }
+
+    const { allOffers, eventData, destinations, currentEventType, destinationNames } = event;
+
+    //Удаление поля currentDestinationName, если оно не содержит корректного наименования
+    if (!destinationNames.some((name) => name === event.currentDestinationName)) {
+      delete event.currentDestinationName;
+    }
+
+
+    const getCurrentOffers = () => allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
+    const getCurrentDestinationData = () => destinations.find((destinationData) => destinationData.name === event.currentDestinationName);
+
+    //Замена списка offers
+    if (currentEventType && currentEventType !== eventData.event.type) {
+      eventData.event.type = currentEventType;
+      event.typeOffers = getCurrentOffers();
+
+      //На данный момент лишь очищаю список выбранных офферов
+      eventData.offers = [];
+      eventData.event.offers = [];
+    }
+
+    //Замена данных о пункте назначения
+    //Меняем данные только если пункт назначения был изменен
+    if (event.currentDestinationName && event.currentDestinationName !== eventData.destination.name) {
+      eventData.destination = getCurrentDestinationData();
+      eventData.event.destination = eventData.destination.id;
+    }
+
+    delete event.currentEventType;
+    delete event.currentDestinationName;
+
+    return event;
+  }
+
+  _restoreHandlers(){
+    this.element.addEventListener('submit', this.#formSubmitHandler);
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCloseHandler);
+
+    this.element.querySelector('.event__type-group').addEventListener('click', this.#formChangeTypeHandler);
+    this.element.querySelector('.event__input.event__input--destination').addEventListener('change', this.#formChangeDestinationHandler);
+  }
+
+  #formChangeTypeHandler = (evt) => {
+    const targetInput = evt.target.closest('.event__type-input');
+    if (targetInput) {
+      this.element.querySelector('.event__type-toggle').value = targetInput.value;
+
+      this.updateElement({currentEventType: targetInput.value});
+    }
+  };
+
+  #formChangeDestinationHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({currentDestinationName: evt.target.value});
+  };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state));
   };
 
   #formCloseHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormClose();
   };
-
-  setEventListeners() {
-    this.element.addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
-  }
-
 }
