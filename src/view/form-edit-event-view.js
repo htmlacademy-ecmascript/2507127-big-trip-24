@@ -3,17 +3,18 @@ import {TimeFormat } from '../utils/const.js';
 import { humanizeDate } from '../utils/event.js';
 
 
-function createEventTypeItemTemplate(type) {
+function createEventTypeItemTemplate(type, checkedType) {
   return `
     <div class="event__type-item">
-      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}">
+      <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type}" ${type === checkedType ? 'checked' : ''}>
       <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type}</label>
     </div>
   `;
 }
 
 function createFormHeaderTypeTemplate(event, allTypes, currentEventType){
-  const eventTypeList = allTypes.map((type) => createEventTypeItemTemplate(type)).join('');
+  const checkedType = currentEventType || event.type;
+  const eventTypeList = allTypes.map((type) => createEventTypeItemTemplate(type, checkedType)).join('');
 
   return `
     <div class="event__type-wrapper">
@@ -139,14 +140,24 @@ function createEventPhotoContainerTemplate(pictures){
   `;
 }
 
+function createEventDescriptionTemplate(description){
+  return `
+    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+    <p class="event__destination-description">${description}</p>
+  `;
+}
+
 function createEventDestinationTemplate({description, pictures}) {
+  const isDataEmpty = description.length === 0 && pictures.length === 0;
+  if (isDataEmpty) {
+    return '';
+  }
 
   return `
     <section class="event__section  event__section--destination">
-                    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                    <p class="event__destination-description">${description}</p>
-                    ${pictures.length > 0 ? createEventPhotoContainerTemplate(pictures) : ''}
-                  </section>
+      ${createEventDescriptionTemplate(description)}
+      ${pictures.length > 0 ? createEventPhotoContainerTemplate(pictures) : ''}
+    </section>
   `;
 }
 
