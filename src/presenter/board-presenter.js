@@ -1,4 +1,3 @@
-import SortView from '../view/sort-view.js';
 import EventListView from '../view/events-list-view.js';
 import BoardView from '../view/board-view.js';
 import { remove, render } from '../framework/render.js';
@@ -7,6 +6,7 @@ import EventPresenter from './event-presenter.js';
 import { updateItem } from '../utils/common.js';
 import { SortType } from '../utils/const.js';
 import { sortEventsData } from '../utils/sort.js';
+import SortPresenter from './sort-presenter.js';
 
 export default class BoardPresenter {
   #boardComponent = new BoardView;
@@ -22,6 +22,7 @@ export default class BoardPresenter {
   #boardEvents = [];
   #currentSortType = SortType.DAY;
   #eventPresenters = new Map();
+  #sortPresenter = null;
 
   constructor({boardContainer, eventsModel, destinationsModel, offersModel}) {
     this.#boardContainer = boardContainer;
@@ -62,6 +63,15 @@ export default class BoardPresenter {
     }
   }
 
+  #renderSort(){
+    this.#sortPresenter = new SortPresenter({
+      sortContainer: this.#boardComponent.element,
+      onSortTypeChange: this.#handleSortTypeChange
+    });
+
+    this.#sortPresenter.init();
+  }
+
   #clearSort(){
     remove(this.#sortComponent);
   }
@@ -76,10 +86,6 @@ export default class BoardPresenter {
     this.#renderEvents();
   };
 
-  #renderSort() {
-    this.#sortComponent = new SortView({currentSortType: this.#currentSortType, onSortTypeChange: this.#handleSortTypeChange});
-    render(this.#sortComponent, this.#boardComponent.element);
-  }
 
   #renderEmptyList(){
     render(new EmptyEventsListView, this.#boardContainer);
