@@ -1,7 +1,9 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {TimeFormat } from '../utils/const.js';
 import { humanizeDate } from '../utils/event.js';
+import flatpickr from 'flatpickr';
 
+import 'flatpickr/dist/flatpickr.min.css';
 
 function createEventTypeItemTemplate(type, checkedType) {
   return `
@@ -215,6 +217,9 @@ export default class FormEditEventView extends AbstractStatefulView{
   #handleFormSubmit = null;
   #handleFormClose = null;
 
+  #datepickerStart = null;
+  #datepickerEnd = null;
+
   constructor({eventData, allOffers, typeOffers, allTypes, destinations, destinationNames, onFormSubmit, onFormClose}) {
     super();
 
@@ -237,13 +242,88 @@ export default class FormEditEventView extends AbstractStatefulView{
     return createFormAddEventTemplate(this._state);
   }
 
-  reset(event){
+  removeElement(){
+    super.removeElement();
 
+    if (this.#datepickerStart || this.#datepickerEnd) {
+      this.#datepickerStart.destroy();
+      this.#datepickerStart = null;
+
+      this.#datepickerEnd.destroy();
+      this.#datepickerEnd = null;
+    }
+  }
+
+  reset(event){
     delete this._state.currentEventType;
     delete this._state.currentDestinationName;
+    delete this._state.userDateFrom;
+    delete this._state.userDateTo;
 
     this.updateElement(FormEditEventView.parseEventToState(event));
   }
+
+  _restoreHandlers(){
+    this.element.addEventListener('submit', this.#formSubmitHandler);
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCloseHandler);
+
+    this.element.querySelector('.event__type-group').addEventListener('click', this.#formChangeTypeHandler);
+    this.element.querySelector('.event__input.event__input--destination').addEventListener('change', this.#formChangeDestinationHandler);
+
+    this.#setDatepickers();
+  }
+
+  #setDatepickers(){
+    this.#datepickerStart = flatpickr(
+      this.element.querySelector('input[name="event-start-time"]'), {
+        dateFormat: 'd/m/y H:m',
+        defaultDate: this._state.userDateFrom || this._state.eventData.event.dateFrom,
+        onClose: this.#dateFromChangeHandler,
+        enableTime: true,
+      });
+
+    this.#datepickerEnd = flatpickr(
+      this.element.querySelector('input[name="event-end-time"]'), {
+        dateFormat: 'd/m/y H:m',
+        defaultDate: this._state.userDateTo || this._state.eventData.event.dateTo,
+        onClose: this.#dateToChangeHandler,
+        enableTime: true,
+      });
+  }
+
+  #dateFromChangeHandler = ([userDateFrom]) => {
+    this.updateElement({userDateFrom});
+  };
+
+  #dateToChangeHandler = ([userDateTo]) => {
+    this.updateElement({userDateTo});
+  };
+
+  #formChangeTypeHandler = (evt) => {
+    const targetInput = evt.target.closest('.event__type-input');
+    if (targetInput) {
+      this.element.querySelector('.event__type-toggle').value = targetInput.value;
+
+      this.updateElement({currentEventType: targetInput.value});
+    }
+  };
+
+  #formChangeDestinationHandler = (evt) => {
+    evt.preventDefault();
+    this.updateElement({currentDestinationName: evt.target.value});
+  };
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state));
+  };
+
+  #formCloseHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormClose();
+  };
 
   static parseEventToState(event){
     return {...event};
@@ -252,8 +332,15 @@ export default class FormEditEventView extends AbstractStatefulView{
   static parseStateToEvent(state){
     const event = {...state};
 
+
     //Выход из функции при отсутствии изменений
-    if (!event.currentEventType && !event.currentDestinationName) {
+    const allNewProperties = [
+      event.currentEventType,
+      event.currentDestinationName,
+      event.userDateFrom,
+      event.userDateTo
+    ];
+    if (allNewProperties.every((property) => property === undefined)) {
       return;
     }
 
@@ -285,43 +372,19 @@ export default class FormEditEventView extends AbstractStatefulView{
       eventData.event.destination = eventData.destination.id;
     }
 
+    //Замена дат
+    if (event.userDateFrom) {
+      eventData.event.dateFrom = event.userDateFrom;
+    }
+    if (event.userDateTo) {
+      eventData.event.dateTo = event.userDateTo;
+    }
+
     delete event.currentEventType;
     delete event.currentDestinationName;
+    delete event.userDateFrom;
+    delete event.userDateTo;
 
     return event;
   }
-
-  _restoreHandlers(){
-    this.element.addEventListener('submit', this.#formSubmitHandler);
-
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCloseHandler);
-
-    this.element.querySelector('.event__type-group').addEventListener('click', this.#formChangeTypeHandler);
-    this.element.querySelector('.event__input.event__input--destination').addEventListener('change', this.#formChangeDestinationHandler);
-  }
-
-  #formChangeTypeHandler = (evt) => {
-    const targetInput = evt.target.closest('.event__type-input');
-    if (targetInput) {
-      this.element.querySelector('.event__type-toggle').value = targetInput.value;
-
-      this.updateElement({currentEventType: targetInput.value});
-    }
-  };
-
-  #formChangeDestinationHandler = (evt) => {
-    evt.preventDefault();
-    this.updateElement({currentDestinationName: evt.target.value});
-  };
-
-  #formSubmitHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state));
-  };
-
-  #formCloseHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFormClose();
-  };
 }
