@@ -1,9 +1,8 @@
 import EventListView from '../view/events-list-view.js';
 import BoardView from '../view/board-view.js';
-import { remove, render } from '../framework/render.js';
+import { render } from '../framework/render.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
 import EventPresenter from './event-presenter.js';
-import { updateItem } from '../utils/common.js';
 import { SortType } from '../utils/const.js';
 import { sortEventsData } from '../utils/sort.js';
 import SortPresenter from './sort-presenter.js';
@@ -11,7 +10,6 @@ import SortPresenter from './sort-presenter.js';
 export default class BoardPresenter {
   #boardComponent = new BoardView;
   #eventListComponent = new EventListView;
-  #sortComponent = null;
   #boardContainer = null;
 
   #eventsModel = null;
@@ -19,7 +17,6 @@ export default class BoardPresenter {
   #offersModel = null;
 
 
-  #boardEvents = [];
   #currentSortType = SortType.DAY;
   #eventPresenters = new Map();
   #sortPresenter = null;
@@ -31,10 +28,11 @@ export default class BoardPresenter {
     this.#offersModel = offersModel;
   }
 
-  init() {
-    this.#boardEvents = [...this.#eventsModel.events];
-    this.#sortEvents(this.#currentSortType);
+  get events(){
+    return sortEventsData(this.#eventsModel.events, this.#currentSortType);
+  }
 
+  init() {
     this.#renderBoard();
   }
 
@@ -44,24 +42,12 @@ export default class BoardPresenter {
   }
 
   #handleEventChange = (updatedEvent) => {
-    this.#boardEvents = updateItem(this.#boardEvents, updatedEvent.eventData.event);
     this.#eventPresenters.get(updatedEvent.eventData.event.id).init(updatedEvent);
   };
 
   #handleModeChange = () => {
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
-
-  #sortEvents(sortType){
-    sortEventsData(this.#boardEvents, sortType);
-
-    this.#currentSortType = sortType;
-
-    this.#clearSort();
-    if(this.#sortComponent !== null){
-      this.#renderSort();
-    }
-  }
 
   #renderSort(){
     this.#sortPresenter = new SortPresenter({
@@ -72,20 +58,15 @@ export default class BoardPresenter {
     this.#sortPresenter.init();
   }
 
-  #clearSort(){
-    remove(this.#sortComponent);
-  }
-
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
 
-    this.#sortEvents(sortType);
+    this.#currentSortType = sortType;
     this.#clearEventList();
     this.#renderEvents();
   };
-
 
   #renderEmptyList(){
     render(new EmptyEventsListView, this.#boardContainer);
@@ -103,15 +84,15 @@ export default class BoardPresenter {
   }
 
   #renderEvents() {
-    for (let i = 0; i < this.#boardEvents.length; i++) {
-      const event = this.#boardEvents[i];
+    for (let i = 0; i < this.events.length; i++) {
+      const event = this.events[i];
       const eventData = {
         event,
         offers: [...this.#offersModel.getOffersById(event.type, event.offers)],
         destination: this.#destinationsModel.getDestinationById(event.destination),
       };
 
-      const typeOffers = this.#offersModel.getOffersByType(this.#boardEvents[i].type).offers;
+      const typeOffers = this.#offersModel.getOffersByType(this.events[i].type).offers;
       const allTypes = this.#offersModel.allTypes;
 
       const destinations = this.#destinationsModel.destinations;
@@ -130,7 +111,7 @@ export default class BoardPresenter {
     this.#renderContainers();
     this.#renderSort();
 
-    if (this.#boardEvents.length === 0) {
+    if (this.events.length === 0) {
       this.#renderEmptyList();
       return;
     }
