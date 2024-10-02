@@ -22,5 +22,17 @@ const TimeFormat = {
   FORM_EDIT: 'DD/MM/YY HH:mm'
 };
 
+const UserAction = {
+  UPDATE_EVENT: 'UPDATE_EVENT',
+  ADD_EVENT: 'ADD_EVENT',
+  DELETE_EVENT: 'DELETE_EVENT',
+};
 
-export { SortType, TimeFormat, FiltersEvent };
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+
+export { SortType, TimeFormat, FiltersEvent, UserAction, UpdateType};

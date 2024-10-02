@@ -1,15 +1,16 @@
 import EventListView from '../view/events-list-view.js';
 import BoardView from '../view/board-view.js';
-import { render } from '../framework/render.js';
+import { remove, render } from '../framework/render.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
 import EventPresenter from './event-presenter.js';
-import { SortType } from '../utils/const.js';
+import { SortType, UpdateType, UserAction } from '../utils/const.js';
 import { sortEventsData } from '../utils/sort.js';
 import SortPresenter from './sort-presenter.js';
 
 export default class BoardPresenter {
   #boardComponent = new BoardView;
   #eventListComponent = new EventListView;
+  #emptyEventsListComponent = new EmptyEventsListView;
   #boardContainer = null;
 
   #eventsModel = null;
@@ -26,6 +27,8 @@ export default class BoardPresenter {
     this.#eventsModel = eventsModel;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
+
+    this.#eventsModel.addObserver(this.#handleModeEvent);
   }
 
   get events(){
@@ -41,16 +44,49 @@ export default class BoardPresenter {
     render(this.#eventListComponent, this.#boardContainer);
   }
 
-  #handleEventChange = (updatedEvent) => {
-    this.#eventPresenters.get(updatedEvent.eventData.event.id).init(updatedEvent);
+  #handleViewAction = (actionType, updateType, update) => {
+    switch(actionType){
+      case UserAction.UPDATE_EVENT:
+        this.#eventsModel.updateEvent(updateType,update);
+        break;
+      case UserAction.ADD_EVENT:
+        this.#eventsModel.addEvent(updateType,update);
+        break;
+      case UserAction.DELETE_EVENT:
+        this.#eventsModel.deleteEvent(updateType,update);
+        break;
+    }
   };
+
+  #handleModeEvent = (updateType, data) => {
+    switch(updateType){
+      case UpdateType.PATCH:
+        this.#eventPresenters.get(data.eventData.event.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        this.#clearBoard();
+        this.#renderBoard();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearBoard({resetSortType: true});
+        this.#renderBoard();
+        break;
+    }
+  };
+
 
   #handleModeChange = () => {
     this.#eventPresenters.forEach((presenter) => presenter.resetView());
   };
 
+  #removeSort(){
+    this.#sortPresenter.destroy();
+    this.#sortPresenter = null;
+  }
+
   #renderSort(){
     this.#sortPresenter = new SortPresenter({
+      currentSortType: this.#currentSortType,
       sortContainer: this.#boardComponent.element,
       onSortTypeChange: this.#handleSortTypeChange
     });
@@ -64,18 +100,18 @@ export default class BoardPresenter {
     }
 
     this.#currentSortType = sortType;
-    this.#clearEventList();
-    this.#renderEvents();
+    this.#clearBoard();
+    this.#renderBoard();
   };
 
   #renderEmptyList(){
-    render(new EmptyEventsListView, this.#boardContainer);
+    render(this.#emptyEventsListComponent, this.#boardContainer);
   }
 
   #renderEvent(eventData, typeOffers, allTypes, destinations, destinationNames){
     const eventPresenter = new EventPresenter({
       eventListContainer: this.#eventListComponent.element,
-      onDataChange: this.#handleEventChange,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange,
     });
 
@@ -102,6 +138,17 @@ export default class BoardPresenter {
     }
   }
 
+  #clearBoard({resetSortType = false} = {}){
+    this.#clearEventList();
+
+    remove(this.#emptyEventsListComponent);
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DAY;
+      this.#removeSort();
+    }
+  }
+
   #clearEventList() {
     this.#eventPresenters.forEach((presenter) => presenter.destroy());
     this.#eventPresenters.clear();
@@ -109,13 +156,14 @@ export default class BoardPresenter {
 
   #renderBoard(){
     this.#renderContainers();
-    this.#renderSort();
 
     if (this.events.length === 0) {
       this.#renderEmptyList();
       return;
     }
-
+    if(this.#sortPresenter === null) {
+      this.#renderSort();
+    }
     this.#renderEvents();
   }
 }

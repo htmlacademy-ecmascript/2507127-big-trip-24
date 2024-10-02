@@ -1,4 +1,5 @@
 import { remove, render, replace } from '../framework/render';
+import { UpdateType, UserAction } from '../utils/const';
 import EventItemView from '../view/event-item-view';
 import FormEditEventView from '../view/form-edit-event-view';
 
@@ -97,14 +98,17 @@ export default class EventPresenter{
 
   #handleFavoriteClick = () => {
     const event = {...this.#eventData.event, isFavorite: !this.#eventData.event.isFavorite};
-    this.#handleDataChange({
-      eventData:{...this.#eventData, event},
-      typeOffers: this.#typeOffers,
-      allTypes: this.#allTypes,
-      allOffers: this.#allOffers,
-      destinations: this.#destinations,
-      destinationNames: this.#destinationNames,
-    });
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.PATCH,
+      {
+        eventData:{...this.#eventData, event},
+        typeOffers: this.#typeOffers,
+        allTypes: this.#allTypes,
+        allOffers: this.#allOffers,
+        destinations: this.#destinations,
+        destinationNames: this.#destinationNames,
+      });
   };
 
   #handleEditClick = () => {
@@ -122,14 +126,17 @@ export default class EventPresenter{
     this.#eventData = event.eventData;
 
     //Ре-рендер эвент-поинта с обновленными данными
-    this.#handleDataChange({
-      eventData: this.#eventData,
-      typeOffers: this.#typeOffers,
-      allTypes: this.#allTypes,
-      allOffers: this.#allOffers,
-      destinations: this.#destinations,
-      destinationNames: this.#destinationNames,
-    });
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      {
+        eventData: this.#eventData,
+        typeOffers: this.#typeOffers,
+        allTypes: this.#allTypes,
+        allOffers: this.#allOffers,
+        destinations: this.#destinations,
+        destinationNames: this.#destinationNames,
+      });
   };
 
   #handleFormClose = () => {

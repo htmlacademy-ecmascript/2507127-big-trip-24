@@ -21,8 +21,4 @@ function getUniqueElements(amount, getElement){
   return elements;
 }
 
-function updateItem(items, updatedItem) {
-  return items.map((item) => item.id === updatedItem.id ? updatedItem : item);
-}
-
-export { increaseNumber, getRandomArrayElement, getUniqueElements, updateItem};
+export { increaseNumber, getRandomArrayElement, getUniqueElements};
