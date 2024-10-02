@@ -17,7 +17,10 @@ export default class EventPresenter{
 
   #eventData = null;
   #typeOffers = null;
+  #allOffers = [];
   #allTypes = [];
+  #destinations = [];
+  #destinationNames = null;
 
   #mode = mode.DEFAULT;
 
@@ -27,10 +30,13 @@ export default class EventPresenter{
     this.#handleModeChange = onModeChange;
   }
 
-  init({eventData, typeOffers, allTypes}){
+  init({eventData, typeOffers, allOffers, allTypes, destinations, destinationNames}){
     this.#eventData = eventData;
     this.#typeOffers = typeOffers;
+    this.#allOffers = allOffers;
     this.#allTypes = allTypes;
+    this.#destinations = destinations;
+    this.#destinationNames = destinationNames;
 
     const prevEventComponent = this.#eventComponent;
     const prevEventEditComponent = this.#eventEditComponent;
@@ -45,6 +51,9 @@ export default class EventPresenter{
       eventData: this.#eventData,
       typeOffers: this.#typeOffers,
       allTypes: this.#allTypes,
+      allOffers: this.#allOffers,
+      destinations: this.#destinations,
+      destinationNames: this.#destinationNames,
       onFormSubmit: this.#handleFormSubmit,
       onFormClose: this.#handleFormClose,
     });
@@ -73,6 +82,15 @@ export default class EventPresenter{
 
   resetView(){
     if (this.#mode !== 'DEFAULT') {
+      //Под вопросом
+      this.#eventEditComponent.reset({
+        eventData: this.#eventData,
+        typeOffers: this.#typeOffers,
+        allTypes: this.#allTypes,
+        allOffers: this.#allOffers,
+        destinations: this.#destinations,
+        destinationNames: this.#destinationNames,
+      });
       this.#replaceFormToEvent();
     }
   }
@@ -82,7 +100,10 @@ export default class EventPresenter{
     this.#handleDataChange({
       eventData:{...this.#eventData, event},
       typeOffers: this.#typeOffers,
-      allTypes: this.#allTypes
+      allTypes: this.#allTypes,
+      allOffers: this.#allOffers,
+      destinations: this.#destinations,
+      destinationNames: this.#destinationNames,
     });
   };
 
@@ -90,18 +111,50 @@ export default class EventPresenter{
     this.#replaceEventToForm();
   };
 
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (event) => {
     this.#replaceFormToEvent();
+
+    //Выход из функции, если в форму редактирования не внесли изменения
+    if (!event) {
+      return;
+    }
+
+    this.#eventData = event.eventData;
+
+    //Ре-рендер эвент-поинта с обновленными данными
+    this.#handleDataChange({
+      eventData: this.#eventData,
+      typeOffers: this.#typeOffers,
+      allTypes: this.#allTypes,
+      allOffers: this.#allOffers,
+      destinations: this.#destinations,
+      destinationNames: this.#destinationNames,
+    });
   };
 
   #handleFormClose = () => {
+    this.#eventEditComponent.reset({
+      eventData: this.#eventData,
+      typeOffers: this.#typeOffers,
+      allTypes: this.#allTypes,
+      allOffers: this.#allOffers,
+      destinations: this.#destinations,
+      destinationNames: this.#destinationNames,
+    });
     this.#replaceFormToEvent();
-
   };
 
   #escKeyDownHandler = (evt) => {
     if(evt.key === 'Escape') {
       evt.preventDefault();
+      this.#eventEditComponent.reset({
+        eventData: this.#eventData,
+        typeOffers: this.#typeOffers,
+        allTypes: this.#allTypes,
+        allOffers: this.#allOffers,
+        destinations: this.#destinations,
+        destinationNames: this.#destinationNames,
+      });
       this.#replaceFormToEvent();
     }
   };
