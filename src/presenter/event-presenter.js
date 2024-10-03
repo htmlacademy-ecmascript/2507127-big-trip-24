@@ -57,6 +57,7 @@ export default class EventPresenter{
       destinationNames: this.#destinationNames,
       onFormSubmit: this.#handleFormSubmit,
       onFormClose: this.#handleFormClose,
+      onDeleteClick: this.#handleDeleteClick,
     });
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
@@ -95,6 +96,20 @@ export default class EventPresenter{
       this.#replaceFormToEvent();
     }
   }
+
+  #handleDeleteClick = () => {
+    this.#handleDataChange(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      {
+        eventData: this.#eventData,
+        typeOffers: this.#typeOffers,
+        allTypes: this.#allTypes,
+        allOffers: this.#allOffers,
+        destinations: this.#destinations,
+        destinationNames: this.#destinationNames,
+      });
+  };
 
   #handleFavoriteClick = () => {
     const event = {...this.#eventData.event, isFavorite: !this.#eventData.event.isFavorite};

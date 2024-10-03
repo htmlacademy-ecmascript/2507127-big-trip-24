@@ -39,7 +39,7 @@ export default class EventsModel extends Observable{
     this._notify(updateType, update);
   }
 
-  delete(updateType, update) {
+  deleteEvent(updateType, update) {
     const {eventData} = update;
     const index = this.#events.findIndex((event) => event.id === eventData.event.id);
 

@@ -93,7 +93,7 @@ function createFormHeaderPriceTemplate({basePrice}){
 function createFormHeaderButtonsTemplate(){
   return `
     <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-    <button class="event__reset-btn" type="reset">Cancel</button>
+    <button class="event__reset-btn" type="reset">Delete</button>
     <button class="event__rollup-btn" type="button">
       <span class="visually-hidden">Open event</span>
     </button>
@@ -216,11 +216,22 @@ function createFormAddEventTemplate({eventData, typeOffers, allOffers, allTypes,
 export default class FormEditEventView extends AbstractStatefulView{
   #handleFormSubmit = null;
   #handleFormClose = null;
+  #handleFormDelete = null;
 
   #datepickerStart = null;
   #datepickerEnd = null;
 
-  constructor({eventData, allOffers, typeOffers, allTypes, destinations, destinationNames, onFormSubmit, onFormClose}) {
+  constructor({
+    eventData,
+    allOffers,
+    typeOffers,
+    allTypes,
+    destinations,
+    destinationNames,
+    onFormSubmit,
+    onFormClose,
+    onDeleteClick,
+  }) {
     super();
 
     this._setState(FormEditEventView.parseEventToState({
@@ -234,6 +245,7 @@ export default class FormEditEventView extends AbstractStatefulView{
 
     this.#handleFormSubmit = onFormSubmit;
     this.#handleFormClose = onFormClose;
+    this.#handleFormDelete = onDeleteClick;
 
     this._restoreHandlers();
   }
@@ -267,7 +279,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     this.element.addEventListener('submit', this.#formSubmitHandler);
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCloseHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#handleFormDelete);
 
     this.element.querySelector('.event__type-group').addEventListener('click', this.#formChangeTypeHandler);
     this.element.querySelector('.event__input.event__input--destination').addEventListener('change', this.#formChangeDestinationHandler);
