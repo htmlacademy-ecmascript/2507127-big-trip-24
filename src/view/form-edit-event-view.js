@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import {TimeFormat } from '../utils/const.js';
+import {emptyEventData, TimeFormat } from '../utils/const.js';
 import { humanizeDate } from '../utils/event.js';
 import flatpickr from 'flatpickr';
 
@@ -41,7 +41,6 @@ function createDestinationOptionTemplate(destination) {
 }
 
 function createFormHeaderEventNameTemplate({event, destination, destinationNames, currentEventType, currentDestinationName}){
-
   const destinationOptions = destinationNames.map((destinationName) => createDestinationOptionTemplate(destinationName)).join('');
 
   // На случай, если пользователь введет название пункта назначения отсутствующего в списке
@@ -90,17 +89,23 @@ function createFormHeaderPriceTemplate({basePrice}){
   `;
 }
 
-function createFormHeaderButtonsTemplate(){
+function createRollUpButtonTemplate(){
   return `
-    <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-    <button class="event__reset-btn" type="reset">Delete</button>
     <button class="event__rollup-btn" type="button">
       <span class="visually-hidden">Open event</span>
     </button>
   `;
 }
 
-function createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName}) {
+function createFormHeaderButtonsTemplate(isCreatingEvent){
+  return `
+    <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+    <button class="event__reset-btn" type="reset">${ !isCreatingEvent ? 'Delete' : 'Cancel'}</button>
+    ${!isCreatingEvent ? createRollUpButtonTemplate() : ''}
+  `;
+}
+
+function createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName, isCreatingEvent}) {
 
   return `
     <header class="event__header">
@@ -108,7 +113,7 @@ function createFormHeaderTemplate({event, destination, allTypes, destinationName
                   ${createFormHeaderEventNameTemplate({event, destination, destinationNames, currentEventType, currentDestinationName})}
                   ${createFormHeaderTimeTemplate(event)}
                   ${createFormHeaderPriceTemplate(event)}
-                  ${createFormHeaderButtonsTemplate()}
+                  ${createFormHeaderButtonsTemplate(isCreatingEvent)}
                 </header>
   `;
 }
@@ -150,7 +155,7 @@ function createEventDescriptionTemplate(description){
 }
 
 function createEventDestinationTemplate({description, pictures}) {
-  const isDataEmpty = description.length === 0 && pictures.length === 0;
+  const isDataEmpty = !description || description.length === 0 && pictures.length === 0;
   if (isDataEmpty) {
     return '';
   }
@@ -176,25 +181,36 @@ function createEventDetailsTemplate(offerList, destination) {
   return `
       <section class="event__details">
                   <section class="event__section  event__section--offers">
-                    ${offerList.length ? createOfferListTemplate(offerList) : '' }
+                    ${offerList?.length ? createOfferListTemplate(offerList) : '' }
                   </section>
                   ${destination}
                 </section>
   `;
 }
 
-function createFormAddEventTemplate({eventData, typeOffers, allOffers, allTypes, destinationNames, currentDestinationName, destinations, currentEventType}) {
+function createFormAddEventTemplate({
+  eventData,
+  typeOffers,
+  allOffers,
+  allTypes,
+  destinationNames,
+  currentDestinationName,
+  destinations,
+  currentEventType,
+  isCreatingEvent
+}) {
   const {event, destination} = eventData;
 
   let updatedOffers, initialOffers;
 
-  const getCurrentOffers = (offers) => offers.map((offer) => createEventOfferTemplate(offer)).join('');
+  const getCurrentOffers = (offers) => offers?.map((offer) => createEventOfferTemplate(offer)).join('');
 
   if (currentEventType) {
     const actualOffers = allOffers.find((offers) => offers.type === currentEventType).offers;
     updatedOffers = getCurrentOffers(actualOffers) || [];
   } else {
-    initialOffers = getCurrentOffers(typeOffers);
+    const defaultOffers = allOffers.find((offers) => offers.type === 'flight').offers;
+    initialOffers = getCurrentOffers(typeOffers) || getCurrentOffers(defaultOffers);
   }
 
   const offersList = updatedOffers || initialOffers;
@@ -206,7 +222,7 @@ function createFormAddEventTemplate({eventData, typeOffers, allOffers, allTypes,
 
   return `
     <form class="event event--edit" action="#" method="post">
-      ${createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName})}
+      ${createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName, isCreatingEvent})}
       ${createEventDetailsTemplate(offersList, createEventDestinationTemplate(updatedDestination || destination))}
     </form>
   `;
@@ -215,24 +231,32 @@ function createFormAddEventTemplate({eventData, typeOffers, allOffers, allTypes,
 
 export default class FormEditEventView extends AbstractStatefulView{
   #handleFormSubmit = null;
+  #handleFormCreate = null;
   #handleFormClose = null;
   #handleFormDelete = null;
+  #handleFormCancel = null;
 
   #datepickerStart = null;
   #datepickerEnd = null;
 
+  #isCreatingEvent = null;
+
   constructor({
-    eventData,
+    eventData = emptyEventData,
+    isCreatingEvent = false,
     allOffers,
     typeOffers,
     allTypes,
     destinations,
     destinationNames,
     onFormSubmit,
+    onFormCreate,
     onFormClose,
     onDeleteClick,
+    onFormCancel
   }) {
     super();
+    this.#isCreatingEvent = isCreatingEvent;
 
     this._setState(FormEditEventView.parseEventToState({
       eventData,
@@ -241,11 +265,15 @@ export default class FormEditEventView extends AbstractStatefulView{
       destinationNames,
       typeOffers,
       allOffers,
+      isCreatingEvent: this.#isCreatingEvent
     }));
 
     this.#handleFormSubmit = onFormSubmit;
+    this.#handleFormCreate = onFormCreate;
     this.#handleFormClose = onFormClose;
     this.#handleFormDelete = onDeleteClick;
+
+    this.#handleFormCancel = onFormCancel;
 
     this._restoreHandlers();
   }
@@ -276,15 +304,24 @@ export default class FormEditEventView extends AbstractStatefulView{
   }
 
   _restoreHandlers(){
-    this.element.addEventListener('submit', this.#formSubmitHandler);
-
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#handleFormDelete);
-
     this.element.querySelector('.event__type-group').addEventListener('click', this.#formChangeTypeHandler);
     this.element.querySelector('.event__input.event__input--destination').addEventListener('change', this.#formChangeDestinationHandler);
 
     this.#setDatepickers();
+
+    this._setOptionalHandlers();
+  }
+
+  _setOptionalHandlers(){
+    if (!this.#isCreatingEvent) {
+      this.element.addEventListener('submit', this.#formSubmitHandler);
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
+      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#handleFormDelete);
+    } else {
+      this.element.addEventListener('submit', this.#formCreateHandler);
+      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCancelHandler);
+    }
+
   }
 
   #setDatepickers(){
@@ -309,10 +346,12 @@ export default class FormEditEventView extends AbstractStatefulView{
 
   #dateFromChangeHandler = ([userDateFrom]) => {
     this._setState({userDateFrom});
+    this.#datepickerEnd.set('minDate', this._state.userDateFrom);
   };
 
   #dateToChangeHandler = ([userDateTo]) => {
     this._setState({userDateTo});
+    this.#datepickerStart.set('maxDate', this._state.userDateTo);
   };
 
   #formChangeTypeHandler = (evt) => {
@@ -329,6 +368,22 @@ export default class FormEditEventView extends AbstractStatefulView{
     this.updateElement({currentDestinationName: evt.target.value});
   };
 
+  #formCreateHandler = (evt) => {
+    evt.preventDefault();
+
+    //Выход из функции при отсутсвии введённых данных
+    const inputValues = [
+      document.querySelector('input[name="event-destination"]').value,
+      document.querySelector('input[name="event-start-time"]').value,
+      document.querySelector('input[name="event-end-time"]').value,
+    ];
+    if (inputValues.some((value) => value === '')) {
+      return;
+    }
+
+    this.#handleFormCreate(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData));
+  };
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData));
@@ -337,6 +392,11 @@ export default class FormEditEventView extends AbstractStatefulView{
   #formCloseHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormClose();
+  };
+
+  #formCancelHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormCancel();
   };
 
   #changeEventData(state){

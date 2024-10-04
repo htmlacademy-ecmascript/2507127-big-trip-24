@@ -32,7 +32,7 @@ export default class EventsModel extends Observable{
 
   addEvent(updateType, update){
     this.#events = [
-      update.eventData.event,
+      update,
       ...this.#events
     ];
 

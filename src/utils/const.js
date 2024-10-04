@@ -34,5 +34,24 @@ const UpdateType = {
   MAJOR: 'MAJOR',
 };
 
+const emptyEventData = {
+  destination: {
+    description: '',
+    id: '',
+    name: ''
+  },
+  event: {
+    basePrice: 0,
+    dateFrom: '',
+    dateTo: '',
+    destination: '',
+    id: '',
+    isFavorite: false,
+    offers: [],
+    type: 'flight'
+  },
+  offers: []
+};
 
-export { SortType, TimeFormat, FiltersEvent, UserAction, UpdateType};
+
+export { SortType, TimeFormat, FiltersEvent, UserAction, UpdateType, emptyEventData};

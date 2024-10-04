@@ -8,17 +8,21 @@ export default class CreateEventPresenter{
   #eventsListContainer = null;
   #allOffers = [];
   #allDestinations = [];
+  #allTypes = [];
+  #destinationNames = [];
   #formEditComponent = null;
 
   #handleDataChange = null;
   #handleDestroy = null;
 
-  constructor({eventsListContainer, allOffers, allDestinations, onDataChange, onDestroy}){
+  constructor({eventsListContainer, allOffers, allDestinations, allTypes, destinationNames, onDataChange, onDestroy}){
     this.#eventsListContainer = eventsListContainer;
     this.#allOffers = allOffers;
     this.#allDestinations = allDestinations;
+    this.#destinationNames = destinationNames;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
+    this.#allTypes = allTypes;
   }
 
   init(){
@@ -28,9 +32,11 @@ export default class CreateEventPresenter{
 
     this.#formEditComponent = new FormEditEventView({
       allOffers: this.#allOffers,
-      allDestinations: this.#allDestinations,
-      isCreateEvent: true,
-      onFormSubmit: this.#handleFormSubmit,
+      destinations: this.#allDestinations,
+      allTypes: this.#allTypes,
+      destinationNames: this.#destinationNames,
+      isCreatingEvent: true,
+      onFormCreate: this.#handleFormSubmit,
       onFormCancel: this.#handleFormCancel
     });
 
@@ -51,11 +57,15 @@ export default class CreateEventPresenter{
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
-  #handleFormSubmit = (event) =>{
+  #handleFormSubmit = (data) =>{
+    const { eventData} = data;
+    const { event } = eventData;
+    event.id = nanoid();
+
     this.#handleDataChange(
       UserAction.ADD_EVENT,
       UpdateType.MINOR,
-      {id: nanoid(),...event}
+      event
     );
     this.destroy();
   };
