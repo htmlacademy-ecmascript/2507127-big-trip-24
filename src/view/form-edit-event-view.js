@@ -291,6 +291,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     this.#datepickerStart = flatpickr(
       this.element.querySelector('input[name="event-start-time"]'), {
         dateFormat: 'd/m/y H:m',
+        'time_24hr': true,
         defaultDate: this._state.userDateFrom || this._state.eventData.event.dateFrom,
         onClose: this.#dateFromChangeHandler,
         enableTime: true,
@@ -302,15 +303,16 @@ export default class FormEditEventView extends AbstractStatefulView{
         defaultDate: this._state.userDateTo || this._state.eventData.event.dateTo,
         onClose: this.#dateToChangeHandler,
         enableTime: true,
+        minDate: this._state.userDateFrom || this._state.eventData.event.dateFrom
       });
   }
 
   #dateFromChangeHandler = ([userDateFrom]) => {
-    this.updateElement({userDateFrom});
+    this._setState({userDateFrom});
   };
 
   #dateToChangeHandler = ([userDateTo]) => {
-    this.updateElement({userDateTo});
+    this._setState({userDateTo});
   };
 
   #formChangeTypeHandler = (evt) => {
@@ -329,7 +331,7 @@ export default class FormEditEventView extends AbstractStatefulView{
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state));
+    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData));
   };
 
   #formCloseHandler = (evt) => {
@@ -337,13 +339,8 @@ export default class FormEditEventView extends AbstractStatefulView{
     this.#handleFormClose();
   };
 
-  static parseEventToState(event){
-    return {...event};
-  }
-
-  static parseStateToEvent(state){
+  #changeEventData(state){
     const event = {...state};
-
 
     //Выход из функции при отсутствии изменений
     const allNewProperties = [
@@ -362,7 +359,6 @@ export default class FormEditEventView extends AbstractStatefulView{
     if (!destinationNames.some((name) => name === event.currentDestinationName)) {
       delete event.currentDestinationName;
     }
-
 
     const getCurrentOffers = () => allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
     const getCurrentDestinationData = () => destinations.find((destinationData) => destinationData.name === event.currentDestinationName);
@@ -398,5 +394,13 @@ export default class FormEditEventView extends AbstractStatefulView{
     delete event.userDateTo;
 
     return event;
+  }
+
+  static parseEventToState(event){
+    return {...event};
+  }
+
+  static parseStateToEvent(state, changeData){
+    return changeData(state);
   }
 }

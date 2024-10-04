@@ -17,11 +17,11 @@ export default class EventPresenter{
   #eventEditComponent = null;
 
   #eventData = null;
-  #typeOffers = null;
+  #typeOffers = [];
   #allOffers = [];
   #allTypes = [];
   #destinations = [];
-  #destinationNames = null;
+  #destinationNames = [];
 
   #mode = mode.DEFAULT;
 
@@ -82,17 +82,20 @@ export default class EventPresenter{
     remove(this.#eventEditComponent);
   }
 
+  #resetEventEditComponentData(){
+    this.#eventEditComponent.reset({
+      eventData: this.#eventData,
+      typeOffers: this.#typeOffers,
+      allTypes: this.#allTypes,
+      allOffers: this.#allOffers,
+      destinations: this.#destinations,
+      destinationNames: this.#destinationNames,
+    });
+  }
+
   resetView(){
     if (this.#mode !== 'DEFAULT') {
-      //Под вопросом
-      this.#eventEditComponent.reset({
-        eventData: this.#eventData,
-        typeOffers: this.#typeOffers,
-        allTypes: this.#allTypes,
-        allOffers: this.#allOffers,
-        destinations: this.#destinations,
-        destinationNames: this.#destinationNames,
-      });
+      this.#resetEventEditComponentData();
       this.#replaceFormToEvent();
     }
   }
@@ -155,28 +158,14 @@ export default class EventPresenter{
   };
 
   #handleFormClose = () => {
-    this.#eventEditComponent.reset({
-      eventData: this.#eventData,
-      typeOffers: this.#typeOffers,
-      allTypes: this.#allTypes,
-      allOffers: this.#allOffers,
-      destinations: this.#destinations,
-      destinationNames: this.#destinationNames,
-    });
+    this.#resetEventEditComponentData();
     this.#replaceFormToEvent();
   };
 
   #escKeyDownHandler = (evt) => {
     if(evt.key === 'Escape') {
       evt.preventDefault();
-      this.#eventEditComponent.reset({
-        eventData: this.#eventData,
-        typeOffers: this.#typeOffers,
-        allTypes: this.#allTypes,
-        allOffers: this.#allOffers,
-        destinations: this.#destinations,
-        destinationNames: this.#destinationNames,
-      });
+      this.#resetEventEditComponentData();
       this.#replaceFormToEvent();
     }
   };
