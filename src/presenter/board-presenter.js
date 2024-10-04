@@ -17,16 +17,19 @@ export default class BoardPresenter {
   #destinationsModel = null;
   #offersModel = null;
 
+  #handleCreateEventDestroy = null;
 
   #currentSortType = SortType.DAY;
   #eventPresenters = new Map();
   #sortPresenter = null;
 
-  constructor({boardContainer, eventsModel, destinationsModel, offersModel}) {
+  constructor({boardContainer, eventsModel, destinationsModel, offersModel, onCreateEventDestroy}) {
     this.#boardContainer = boardContainer;
     this.#eventsModel = eventsModel;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
+
+    this.#handleCreateEventDestroy = onCreateEventDestroy;
 
     this.#eventsModel.addObserver(this.#handleModeEvent);
   }
@@ -37,6 +40,11 @@ export default class BoardPresenter {
 
   init() {
     this.#renderBoard();
+  }
+
+  createEvent(){
+    this.#currentSortType = SortType.DAY;
+    //здесь надо добавить изменеие фильтра
   }
 
   #renderContainers(){
