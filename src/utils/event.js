@@ -43,4 +43,11 @@ function isEventExpired (event) {
   return event.dateTo && dayjs().isAfter(event.dateTo, 'D');
 }
 
-export { humanizeDate, getTimeDifference, isEventFuture, isEventExpired, isEventActive};
+function getCheckedOfferTitles(){
+  const checkedOfferInputs = [...document.querySelectorAll('.event__offer-checkbox')].filter((input) => input.checked);
+  const choosedOfferTitles = [];
+  checkedOfferInputs.map((input) => choosedOfferTitles.push(input.dataset.offer));
+  return choosedOfferTitles;
+}
+
+export { humanizeDate, getTimeDifference, isEventFuture, isEventExpired, isEventActive, getCheckedOfferTitles};

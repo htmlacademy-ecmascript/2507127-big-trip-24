@@ -1,6 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import {emptyEventData, TimeFormat } from '../utils/const.js';
-import { humanizeDate } from '../utils/event.js';
+import { getCheckedOfferTitles, humanizeDate } from '../utils/event.js';
 import flatpickr from 'flatpickr';
 
 import 'flatpickr/dist/flatpickr.min.css';
@@ -118,11 +118,12 @@ function createFormHeaderTemplate({event, destination, allTypes, destinationName
   `;
 }
 
-function createEventOfferTemplate(offer){
+function createEventOfferTemplate(offer, choosedOffers){
+  const isChoosedOffer = choosedOffers.includes(offer.id);
   return `
     <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.name}-1" type="checkbox" name="event-offer-${offer.name}">
-                        <label class="event__offer-label" for="event-offer-${offer.name}-1">
+                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.title}-1" type="checkbox" name="event-offer-${offer.title}" ${isChoosedOffer ? 'checked' : ''} data-offer="${offer.title}">
+                        <label class="event__offer-label" for="event-offer-${offer.title}-1">
                           <span class="event__offer-title">${offer.title}</span>
                           &plus;&euro;&nbsp;
                           <span class="event__offer-price">${offer.price}</span>
@@ -200,17 +201,18 @@ function createFormAddEventTemplate({
   isCreatingEvent
 }) {
   const {event, destination} = eventData;
+  const choosedOffers = event.offers;
 
   let updatedOffers, initialOffers;
 
-  const getCurrentOffers = (offers) => offers?.map((offer) => createEventOfferTemplate(offer)).join('');
+  const getCurrentOffers = (offers) => offers?.map((offer) => createEventOfferTemplate(offer, choosedOffers)).join('');
 
   if (currentEventType) {
     const actualOffers = allOffers.find((offers) => offers.type === currentEventType).offers;
     updatedOffers = getCurrentOffers(actualOffers) || [];
   } else {
     const defaultOffers = allOffers.find((offers) => offers.type === 'flight').offers;
-    initialOffers = getCurrentOffers(typeOffers) || getCurrentOffers(defaultOffers);
+    initialOffers = getCurrentOffers(typeOffers) === undefined ? getCurrentOffers(defaultOffers) : getCurrentOffers(typeOffers);
   }
 
   const offersList = updatedOffers || initialOffers;
@@ -252,7 +254,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     onFormSubmit,
     onFormCreate,
     onFormClose,
-    onDeleteClick,
+    onFormDelete,
     onFormCancel
   }) {
     super();
@@ -271,7 +273,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     this.#handleFormSubmit = onFormSubmit;
     this.#handleFormCreate = onFormCreate;
     this.#handleFormClose = onFormClose;
-    this.#handleFormDelete = onDeleteClick;
+    this.#handleFormDelete = onFormDelete;
 
     this.#handleFormCancel = onFormCancel;
 
@@ -354,6 +356,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     this.#datepickerStart.set('maxDate', this._state.userDateTo);
   };
 
+
   #formChangeTypeHandler = (evt) => {
     const targetInput = evt.target.closest('.event__type-input');
     if (targetInput) {
@@ -402,6 +405,11 @@ export default class FormEditEventView extends AbstractStatefulView{
   #changeEventData(state){
     const event = {...state};
 
+    //Получение и сравнение начальных/текущих выбранных офферов
+    const initialCheckedOffers = [...event.eventData.offers.map((offer) => offer.title)];
+    const currentCheckedOffers = getCheckedOfferTitles();
+    const isOffersEqual = currentCheckedOffers.every((offer) => initialCheckedOffers.includes(offer)) && initialCheckedOffers.every((offer) => currentCheckedOffers.includes(offer));
+
     //Выход из функции при отсутствии изменений
     const allNewProperties = [
       event.currentEventType,
@@ -409,7 +417,7 @@ export default class FormEditEventView extends AbstractStatefulView{
       event.userDateFrom,
       event.userDateTo
     ];
-    if (allNewProperties.every((property) => property === undefined)) {
+    if (allNewProperties.every((property) => property === undefined) && isOffersEqual) {
       return;
     }
 
@@ -423,14 +431,22 @@ export default class FormEditEventView extends AbstractStatefulView{
     const getCurrentOffers = () => allOffers.find((currentData) => currentData.type === eventData.event.type).offers;
     const getCurrentDestinationData = () => destinations.find((destinationData) => destinationData.name === event.currentDestinationName);
 
-    //Замена списка offers
+    //Замена списка офферов и типа события
     if (currentEventType && currentEventType !== eventData.event.type) {
       eventData.event.type = currentEventType;
       event.typeOffers = getCurrentOffers();
+    }
+    //Замена выбранных пользователем офферов
+    if (!isOffersEqual) {
+      if (event.typeOffers === undefined) {
+        event.typeOffers = [...event.allOffers].filter((offer) => offer.type === event.eventData.event.type)[0].offers || [];
+      }
 
-      //На данный момент лишь очищаю список выбранных офферов
-      eventData.offers = [];
-      eventData.event.offers = [];
+      const currentFullCheckedOffers = [...event.typeOffers.filter((offer) => currentCheckedOffers.includes(offer.title))];
+
+      eventData.offers = currentFullCheckedOffers;
+      eventData.event.offers = [...currentFullCheckedOffers.map((offer) => offer.id)];
+
     }
 
     //Замена данных о пункте назначения

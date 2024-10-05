@@ -39,7 +39,7 @@ export default class BoardPresenter {
 
     this.#handleCreateEventDestroy = onCreateEventDestroy;
 
-    this.#eventsModel.addObserver(this.#handleModeEvent);
+    this.#eventsModel.addObserver(this.#handleModelEvent);
   }
 
   get events(){
@@ -73,7 +73,7 @@ export default class BoardPresenter {
   };
 
   createEvent(){
-    this.#handleModeEvent(UpdateType.MAJOR);
+    this.#handleModelEvent(UpdateType.MAJOR);
     //здесь надо добавить изменеие фильтра
     this.#createEventPresenter.init();
   }
@@ -97,7 +97,7 @@ export default class BoardPresenter {
     }
   };
 
-  #handleModeEvent = (updateType, data) => {
+  #handleModelEvent = (updateType, data) => {
     switch(updateType){
       case UpdateType.PATCH:
         this.#eventPresenters.get(data.eventData.event.id).init(data);

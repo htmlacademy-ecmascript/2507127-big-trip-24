@@ -57,7 +57,7 @@ export default class EventPresenter{
       destinationNames: this.#destinationNames,
       onFormSubmit: this.#handleFormSubmit,
       onFormClose: this.#handleFormClose,
-      onDeleteClick: this.#handleDeleteClick,
+      onFormDelete: this.#handleFormDelete,
     });
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
@@ -100,7 +100,7 @@ export default class EventPresenter{
     }
   }
 
-  #handleDeleteClick = () => {
+  #handleFormDelete = () => {
     this.#handleDataChange(
       UserAction.DELETE_EVENT,
       UpdateType.MINOR,
