@@ -3,10 +3,11 @@ import BoardView from '../view/board-view.js';
 import { remove, render } from '../framework/render.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
 import EventPresenter from './event-presenter.js';
-import { SortType, UpdateType, UserAction } from '../utils/const.js';
+import { FilterType, SortType, UpdateType, UserAction } from '../utils/const.js';
 import { sortEventsData } from '../utils/sort.js';
 import SortPresenter from './sort-presenter.js';
 import CreateEventPresenter from './create-event-presenter.js';
+import { filter } from '../utils/filter.js';
 
 export default class BoardPresenter {
   #boardComponent = new BoardView;
@@ -17,6 +18,7 @@ export default class BoardPresenter {
   #eventsModel = null;
   #destinationsModel = null;
   #offersModel = null;
+  #filterModel = null;
 
   #allTypes = [];
   #destinationNames = [];
@@ -28,11 +30,12 @@ export default class BoardPresenter {
   #sortPresenter = null;
   #createEventPresenter = null;
 
-  constructor({boardContainer, eventsModel, destinationsModel, offersModel, onCreateEventDestroy}) {
+  constructor({boardContainer, eventsModel, destinationsModel, offersModel, filterModel, onCreateEventDestroy}) {
     this.#boardContainer = boardContainer;
     this.#eventsModel = eventsModel;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
+    this.#filterModel = filterModel;
 
     this.#allTypes = this.#offersModel.allTypes;
     this.#destinationNames = this.#destinationsModel.destinationNames;
@@ -40,10 +43,14 @@ export default class BoardPresenter {
     this.#handleCreateEventDestroy = onCreateEventDestroy;
 
     this.#eventsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   get events(){
-    return sortEventsData(this.#eventsModel.events, this.#currentSortType);
+    const filterType = this.#filterModel.filter;
+    const events = this.#eventsModel.events;
+    const filteredEvents = filter[filterType](events);
+    return sortEventsData(filteredEvents, this.#currentSortType);
   }
 
   init() {
@@ -74,7 +81,7 @@ export default class BoardPresenter {
 
   createEvent(){
     this.#handleModelEvent(UpdateType.MAJOR);
-    //здесь надо добавить изменеие фильтра
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#createEventPresenter.init();
   }
 

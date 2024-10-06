@@ -21,4 +21,11 @@ function getUniqueElements(amount, getElement){
   return elements;
 }
 
-export { increaseNumber, getRandomArrayElement, getUniqueElements};
+function addDaysToCurrentDate(days){
+  const newDate = new Date();
+  newDate.setDate(newDate.getDate() + days);
+  return newDate;
+
+}
+
+export { increaseNumber, getRandomArrayElement, getUniqueElements, addDaysToCurrentDate};

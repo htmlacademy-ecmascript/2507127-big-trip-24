@@ -21,6 +21,7 @@ const boardPresenter = new BoardPresenter({
   eventsModel,
   destinationsModel,
   offersModel,
+  filterModel,
   onCreateEventDestroy: handleCreateEventFormClose
 });
 

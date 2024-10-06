@@ -3,7 +3,7 @@ import { getRandomMockPointEvent } from '../mock/mock-point-events';
 import { getUniqueElements } from '../utils/common';
 
 
-const EVENTS_COUNT = 5;
+const EVENTS_COUNT = 10;
 
 export default class EventsModel extends Observable{
   // #events = Array.from({length: EVENTS_COUNT}, getRandomMockPointEvent);

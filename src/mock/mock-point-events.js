@@ -1,4 +1,4 @@
-import { getRandomArrayElement } from '../utils/common.js';
+import { addDaysToCurrentDate, getRandomArrayElement } from '../utils/common.js';
 
 const jsonPointEvents = [
   {
@@ -288,8 +288,8 @@ const jsonPointEvents = [
   {
     'id': '8ab36fb2-eba0-4b38-8cf3-19d86dd9b1c1',
     'base_price': 5216,
-    'date_from': '2024-12-11T15:29:09.899Z',
-    'date_to': '2024-12-12T23:28:09.899Z',
+    'date_from': `${new Date()}`,
+    'date_to': `${addDaysToCurrentDate(1)}`,
     'destination': '039f3178-3015-46b2-a395-fa26efb2015c',
     'is_favorite': false,
     'offers': [
@@ -302,8 +302,8 @@ const jsonPointEvents = [
   {
     'id': '78fd8473-f24b-453c-a2f4-b3a60f15b12d',
     'base_price': 8413,
-    'date_from': '2024-12-14T16:23:09.899Z',
-    'date_to': '2024-12-16T05:52:09.899Z',
+    'date_from': `${new Date()}`,
+    'date_to': `${addDaysToCurrentDate(2)}`,
     'destination': '7aa8ddd3-9ebe-45cf-8456-5377802ac252',
     'is_favorite': false,
     'offers': [
@@ -314,8 +314,8 @@ const jsonPointEvents = [
   {
     'id': '48cdb4b0-6aac-4ea7-9def-4ac030d23f62',
     'base_price': 6061,
-    'date_from': '2024-12-17T03:51:09.899Z',
-    'date_to': '2024-12-18T04:57:09.899Z',
+    'date_from': `${new Date()}`,
+    'date_to': `${addDaysToCurrentDate(3)}`,
     'destination': 'd01a72e9-087f-4837-a146-ba6a1709ac22',
     'is_favorite': false,
     'offers': [
