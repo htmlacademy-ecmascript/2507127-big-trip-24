@@ -1,4 +1,5 @@
 import { remove, render, replace } from '../framework/render';
+import { UpdateType, UserAction } from '../utils/const';
 import EventItemView from '../view/event-item-view';
 import FormEditEventView from '../view/form-edit-event-view';
 
@@ -16,11 +17,11 @@ export default class EventPresenter{
   #eventEditComponent = null;
 
   #eventData = null;
-  #typeOffers = null;
+  #typeOffers = [];
   #allOffers = [];
   #allTypes = [];
   #destinations = [];
-  #destinationNames = null;
+  #destinationNames = [];
 
   #mode = mode.DEFAULT;
 
@@ -56,6 +57,7 @@ export default class EventPresenter{
       destinationNames: this.#destinationNames,
       onFormSubmit: this.#handleFormSubmit,
       onFormClose: this.#handleFormClose,
+      onFormDelete: this.#handleFormDelete,
     });
 
     if (prevEventComponent === null || prevEventEditComponent === null) {
@@ -80,10 +82,29 @@ export default class EventPresenter{
     remove(this.#eventEditComponent);
   }
 
+  #resetEventEditComponentData(){
+    this.#eventEditComponent.reset({
+      eventData: this.#eventData,
+      typeOffers: this.#typeOffers,
+      allTypes: this.#allTypes,
+      allOffers: this.#allOffers,
+      destinations: this.#destinations,
+      destinationNames: this.#destinationNames,
+    });
+  }
+
   resetView(){
     if (this.#mode !== 'DEFAULT') {
-      //Под вопросом
-      this.#eventEditComponent.reset({
+      this.#resetEventEditComponentData();
+      this.#replaceFormToEvent();
+    }
+  }
+
+  #handleFormDelete = () => {
+    this.#handleDataChange(
+      UserAction.DELETE_EVENT,
+      UpdateType.MINOR,
+      {
         eventData: this.#eventData,
         typeOffers: this.#typeOffers,
         allTypes: this.#allTypes,
@@ -91,20 +112,21 @@ export default class EventPresenter{
         destinations: this.#destinations,
         destinationNames: this.#destinationNames,
       });
-      this.#replaceFormToEvent();
-    }
-  }
+  };
 
   #handleFavoriteClick = () => {
     const event = {...this.#eventData.event, isFavorite: !this.#eventData.event.isFavorite};
-    this.#handleDataChange({
-      eventData:{...this.#eventData, event},
-      typeOffers: this.#typeOffers,
-      allTypes: this.#allTypes,
-      allOffers: this.#allOffers,
-      destinations: this.#destinations,
-      destinationNames: this.#destinationNames,
-    });
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.PATCH,
+      {
+        eventData:{...this.#eventData, event},
+        typeOffers: this.#typeOffers,
+        allTypes: this.#allTypes,
+        allOffers: this.#allOffers,
+        destinations: this.#destinations,
+        destinationNames: this.#destinationNames,
+      });
   };
 
   #handleEditClick = () => {
@@ -122,32 +144,10 @@ export default class EventPresenter{
     this.#eventData = event.eventData;
 
     //Ре-рендер эвент-поинта с обновленными данными
-    this.#handleDataChange({
-      eventData: this.#eventData,
-      typeOffers: this.#typeOffers,
-      allTypes: this.#allTypes,
-      allOffers: this.#allOffers,
-      destinations: this.#destinations,
-      destinationNames: this.#destinationNames,
-    });
-  };
-
-  #handleFormClose = () => {
-    this.#eventEditComponent.reset({
-      eventData: this.#eventData,
-      typeOffers: this.#typeOffers,
-      allTypes: this.#allTypes,
-      allOffers: this.#allOffers,
-      destinations: this.#destinations,
-      destinationNames: this.#destinationNames,
-    });
-    this.#replaceFormToEvent();
-  };
-
-  #escKeyDownHandler = (evt) => {
-    if(evt.key === 'Escape') {
-      evt.preventDefault();
-      this.#eventEditComponent.reset({
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      {
         eventData: this.#eventData,
         typeOffers: this.#typeOffers,
         allTypes: this.#allTypes,
@@ -155,6 +155,17 @@ export default class EventPresenter{
         destinations: this.#destinations,
         destinationNames: this.#destinationNames,
       });
+  };
+
+  #handleFormClose = () => {
+    this.#resetEventEditComponentData();
+    this.#replaceFormToEvent();
+  };
+
+  #escKeyDownHandler = (evt) => {
+    if(evt.key === 'Escape') {
+      evt.preventDefault();
+      this.#resetEventEditComponentData();
       this.#replaceFormToEvent();
     }
   };

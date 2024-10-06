@@ -10,7 +10,8 @@ export default class SortPresenter{
 
   #onSortTypeChange = null;
 
-  constructor({sortContainer, onSortTypeChange}){
+  constructor({currentSortType, sortContainer, onSortTypeChange}){
+    this.#currentSortType = currentSortType;
     this.#sortContainer = sortContainer;
     this.#onSortTypeChange = onSortTypeChange;
   }
@@ -24,6 +25,10 @@ export default class SortPresenter{
     this.#onSortTypeChange(sortType);
     this.#renderSort();
   };
+
+  destroy(){
+    remove(this.#sortComponent);
+  }
 
   #renderSort(){
     const prevSortComponent = this.#sortComponent;

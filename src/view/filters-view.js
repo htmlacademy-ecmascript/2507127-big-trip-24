@@ -1,7 +1,7 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { FiltersEvent } from '../utils/const.js';
 
-function createFilterItemTemplate({type, count}) {
+function createFilterItemTemplate(filter, currentFilterType) {
+  const {type, count} = filter;
   return `<div class="trip-filters__filter">
                   <input
                   id="filter-${type}"
@@ -9,7 +9,7 @@ function createFilterItemTemplate({type, count}) {
                   visually-hidden" type="radio"
                   name="trip-filter"
                   value="${type}"
-                  ${type === FiltersEvent.EVERYTHING ? 'checked' : ''}
+                  ${type === currentFilterType ? 'checked' : ''}
                   ${count === 0 ? 'disabled' : ''}
                   >
                   <label class="trip-filters__filter-label" for="filter-${type}">${type}</label>
@@ -17,8 +17,8 @@ function createFilterItemTemplate({type, count}) {
 `;
 }
 
-function createFiltersTemplate(filters) {
-  const filtersList = filters.map((filter) => createFilterItemTemplate(filter)).join('');
+function createFiltersTemplate(filters, currentFilterType) {
+  const filtersList = filters.map((filter) => createFilterItemTemplate(filter, currentFilterType)).join('');
 
   return `<form class="trip-filters" action="#" method="get">
   ${filtersList}
@@ -28,12 +28,32 @@ function createFiltersTemplate(filters) {
 
 export default class FiltersView extends AbstractView{
   #filters = null;
-  constructor({filters}){
+  #currentFilterType = null;
+
+  #handleFilterTypeChange = null;
+
+  constructor({filters, currentFilterType, onFilterTypeChange}){
     super();
     this.#filters = filters;
+    this.#currentFilterType = currentFilterType;
+    this.#handleFilterTypeChange = onFilterTypeChange;
+
+    this.#setEventListeners();
+  }
+
+  #setEventListeners(){
+    this.element.addEventListener('change', this.#filterTypeChangeHandler);
   }
 
   get template() {
-    return createFiltersTemplate(this.#filters);
+    return createFiltersTemplate(this.#filters, this.#currentFilterType);
   }
+
+  #filterTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+    const targetElement = evt.target.closest('input.trip-filters__filter-input');
+    if (targetElement){
+      this.#handleFilterTypeChange(targetElement.value);
+    }
+  };
 }

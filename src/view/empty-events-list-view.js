@@ -1,14 +1,20 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import { emptyFilterMessage } from '../utils/const.js';
 
-
-function createEmptyListMessageTemplate() {
+function createEmptyListMessageTemplate(currentFilterType) {
   return `
-    <p class="trip-events__msg">Click New Event to create your first point</p>
+    <p class="trip-events__msg">${emptyFilterMessage[currentFilterType]}</p>
   `;
 }
 
 export default class EmptyEventsListView extends AbstractView {
+  #currentFilterType;
+  constructor({currentFilterType}){
+    super();
+    this.#currentFilterType = currentFilterType;
+  }
+
   get template() {
-    return createEmptyListMessageTemplate();
+    return createEmptyListMessageTemplate(this.#currentFilterType);
   }
 }

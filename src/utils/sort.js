@@ -27,20 +27,15 @@ function sortByOffers(offersA, offersB) {
 function sortEventsData(events, sortType){
   switch(sortType){
     case SortType.DAY:
-      events.sort(sortByDay);
-      break;
+      return [...events].sort(sortByDay);
     case SortType.EVENT:
-      events.sort(sortByEvent);
-      break;
+      return [...events].sort(sortByEvent);
     case SortType.TIME:
-      events.sort(sortByTime);
-      break;
+      return [...events].sort(sortByTime);
     case SortType.PRICE:
-      events.sort(sortByPrice);
-      break;
+      return [...events].sort(sortByPrice);
     case SortType.OFFERS:
-      events.sort(sortByOffers);
-      break;
+      return [...events].sort(sortByOffers);
   }
 }
 
