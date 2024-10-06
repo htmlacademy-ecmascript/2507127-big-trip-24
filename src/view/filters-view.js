@@ -51,6 +51,9 @@ export default class FiltersView extends AbstractView{
 
   #filterTypeChangeHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFilterTypeChange(evt.target.value);
+    const targetElement = evt.target.closest('input.trip-filters__filter-input');
+    if (targetElement){
+      this.#handleFilterTypeChange(targetElement.value);
+    }
   };
 }

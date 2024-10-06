@@ -12,7 +12,7 @@ import { filter } from '../utils/filter.js';
 export default class BoardPresenter {
   #boardComponent = new BoardView;
   #eventListComponent = new EventListView;
-  #emptyEventsListComponent = new EmptyEventsListView;
+  #emptyEventsListComponent = null;
   #boardContainer = null;
 
   #eventsModel = null;
@@ -26,6 +26,7 @@ export default class BoardPresenter {
   #handleCreateEventDestroy = null;
 
   #currentSortType = SortType.DAY;
+  #currentFilterType = FilterType.EVERYTHING;
   #eventPresenters = new Map();
   #sortPresenter = null;
   #createEventPresenter = null;
@@ -47,9 +48,9 @@ export default class BoardPresenter {
   }
 
   get events(){
-    const filterType = this.#filterModel.filter;
+    this.#currentFilterType = this.#filterModel.filter;
     const events = this.#eventsModel.events;
-    const filteredEvents = filter[filterType](events);
+    const filteredEvents = filter[this.#currentFilterType](events);
     return sortEventsData(filteredEvents, this.#currentSortType);
   }
 
@@ -154,6 +155,7 @@ export default class BoardPresenter {
   };
 
   #renderEmptyList(){
+    this.#emptyEventsListComponent = new EmptyEventsListView({currentFilterType: this.#currentFilterType});
     render(this.#emptyEventsListComponent, this.#boardContainer);
   }
 
