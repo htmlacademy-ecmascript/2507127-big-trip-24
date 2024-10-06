@@ -1,5 +1,5 @@
 
-const FiltersEvent = {
+const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
@@ -54,4 +54,4 @@ const emptyEventData = {
 };
 
 
-export { SortType, TimeFormat, FiltersEvent, UserAction, UpdateType, emptyEventData};
+export { SortType, TimeFormat, FilterType, UserAction, UpdateType, emptyEventData};
