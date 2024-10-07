@@ -130,8 +130,10 @@ export default class BoardPresenter {
   };
 
   #removeSort(){
-    this.#sortPresenter.destroy();
-    this.#sortPresenter = null;
+    if (this.#sortPresenter !== null){
+      this.#sortPresenter.destroy();
+      this.#sortPresenter = null;
+    }
   }
 
   #renderSort(){

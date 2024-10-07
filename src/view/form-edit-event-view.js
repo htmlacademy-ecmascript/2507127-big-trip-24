@@ -416,6 +416,11 @@ export default class FormEditEventView extends AbstractStatefulView{
     const currentCheckedOffers = getCheckedOfferTitles();
     const isOffersEqual = currentCheckedOffers.every((offer) => initialCheckedOffers.includes(offer)) && initialCheckedOffers.every((offer) => currentCheckedOffers.includes(offer));
 
+    //Получение и сравнение начальной/текущей цен
+    const initialPrice = event.eventData.event.basePrice;
+    const currentPrice = Number(document.querySelector('.event__input--price').value) || 0;
+    const isPircesEqual = initialPrice === currentPrice;
+
     //Выход из функции при отсутствии изменений
     const allNewProperties = [
       event.currentEventType,
@@ -423,7 +428,7 @@ export default class FormEditEventView extends AbstractStatefulView{
       event.userDateFrom,
       event.userDateTo
     ];
-    if (allNewProperties.every((property) => property === undefined) && isOffersEqual) {
+    if (allNewProperties.every((property) => property === undefined) && isOffersEqual && isPircesEqual) {
       return;
     }
 
@@ -469,6 +474,9 @@ export default class FormEditEventView extends AbstractStatefulView{
     if (event.userDateTo) {
       eventData.event.dateTo = event.userDateTo;
     }
+
+    //Замена цены
+    event.eventData.event.basePrice = currentPrice;
 
     delete event.currentEventType;
     delete event.currentDestinationName;
