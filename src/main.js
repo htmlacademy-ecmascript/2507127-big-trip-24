@@ -6,15 +6,21 @@ import OffersModel from './model/offers-model.js';
 import DestinationsModel from './model/destinations-model.js';
 import CreateEventButtonView from './view/create-event-button-view.js';
 import FilterModel from './model/filter-model.js';
+import EventsApiService from './events-api-service.js';
+
+const AUTHORIZATION = 'Basic 0cqai2ez065nngc';
+const END_POINT = 'https://24.objects.htmlacademy.pro/big-trip';
 
 const buttonContainer = document.querySelector('.trip-main');
 const siteTripControlsFilters = document.querySelector('.trip-controls__filters');
 const bodyMainContainer = document.querySelector('main .page-body__container');
 
-const eventsModel = new EventsModel();
-const filterModel = new FilterModel();
+const eventsModel = new EventsModel({
+  eventsApiService: new EventsApiService(END_POINT, AUTHORIZATION)
+});
 const destinationsModel = new DestinationsModel();
 const offersModel = new OffersModel();
+const filterModel = new FilterModel();
 
 const boardPresenter = new BoardPresenter({
   boardContainer: bodyMainContainer,

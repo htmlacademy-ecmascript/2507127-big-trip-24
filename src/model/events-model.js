@@ -6,8 +6,18 @@ import { getUniqueElements } from '../utils/common';
 const EVENTS_COUNT = 5;
 
 export default class EventsModel extends Observable{
+  #eventsApiService = null;
   // #events = Array.from({length: EVENTS_COUNT}, getRandomMockPointEvent);
   #events = getUniqueElements(EVENTS_COUNT, getRandomMockPointEvent);
+
+  constructor({eventsApiService}){
+    super();
+    this.#eventsApiService = eventsApiService;
+
+    this.#eventsApiService.events.then((events) => {
+      console.log(events.map(this.#adaptToClient));
+    });
+  }
 
   get events(){
     return this.#events;
@@ -53,5 +63,21 @@ export default class EventsModel extends Observable{
     ];
 
     this._notify(updateType);
+  }
+
+  #adaptToClient(event){
+    const adaptedEvent = {...event,
+      basePrice: event['base_price'],
+      dateFrom: event['date_from'] !== null ? new Date(event['date_from']) : event['date_from'],
+      dateTo: event['date_to'] !== null ? new Date(event['date_to']) : event['date_to'],
+      isFavorite: event['is_favorite'],
+    };
+
+    delete adaptedEvent['base_price'];
+    delete adaptedEvent['date_from'];
+    delete adaptedEvent['date_to'];
+    delete adaptedEvent['is_favorite'];
+
+    return adaptedEvent;
   }
 }
