@@ -1,26 +1,27 @@
 import Observable from '../framework/observable';
-import { getRandomMockPointEvent } from '../mock/mock-point-events';
-import { getUniqueElements } from '../utils/common';
 
-
-const EVENTS_COUNT = 5;
 
 export default class EventsModel extends Observable{
   #eventsApiService = null;
-  // #events = Array.from({length: EVENTS_COUNT}, getRandomMockPointEvent);
-  #events = getUniqueElements(EVENTS_COUNT, getRandomMockPointEvent);
+  #events = [];
 
   constructor({eventsApiService}){
     super();
     this.#eventsApiService = eventsApiService;
 
-    this.#eventsApiService.events.then((events) => {
-      console.log(events.map(this.#adaptToClient));
-    });
   }
 
   get events(){
     return this.#events;
+  }
+
+  async init(){
+    try {
+      const events = await this.#eventsApiService.events;
+      this.#events = events.map(this.#adaptToClient);
+    } catch (error) {
+      this.#events = [];
+    }
   }
 
   updateEvent(updateType, update){

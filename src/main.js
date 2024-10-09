@@ -18,8 +18,12 @@ const bodyMainContainer = document.querySelector('main .page-body__container');
 const eventsModel = new EventsModel({
   eventsApiService: new EventsApiService(END_POINT, AUTHORIZATION)
 });
-const destinationsModel = new DestinationsModel();
-const offersModel = new OffersModel();
+const destinationsModel = new DestinationsModel({
+  eventsApiService: new EventsApiService(END_POINT, AUTHORIZATION)
+});
+const offersModel = new OffersModel({
+  eventsApiService: new EventsApiService(END_POINT, AUTHORIZATION)
+});
 const filterModel = new FilterModel();
 
 const boardPresenter = new BoardPresenter({
@@ -53,3 +57,6 @@ render(createEventButtonViewComponent, buttonContainer);
 
 filterPresenter.init();
 boardPresenter.init();
+eventsModel.init();
+offersModel.init();
+destinationsModel.init();

@@ -1,12 +1,24 @@
-import { mockOffers } from '../mock/mock-offers';
-
 
 export default class OffersModel{
-  #offers = mockOffers;
+  #eventsApiService = null;
+  #offers = [];
+
+  constructor({eventsApiService}){
+    this.#eventsApiService = eventsApiService;
+  }
 
   get offers(){
     return this.#offers;
   }
+
+  async init(){
+    try {
+      this.#offers = await this.#eventsApiService.offers;
+    } catch (error) {
+      this.#offers = [];
+    }
+  }
+
 
   get allTypes(){
     const types = [];
