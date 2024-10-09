@@ -1,5 +1,5 @@
 
-export default class OffersModel{
+export default class OffersModel {
   #eventsApiService = null;
   #offers = [];
 
@@ -18,7 +18,6 @@ export default class OffersModel{
       this.#offers = [];
     }
   }
-
 
   get allTypes(){
     const types = [];

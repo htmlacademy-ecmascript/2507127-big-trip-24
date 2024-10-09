@@ -15,16 +15,15 @@ const buttonContainer = document.querySelector('.trip-main');
 const siteTripControlsFilters = document.querySelector('.trip-controls__filters');
 const bodyMainContainer = document.querySelector('main .page-body__container');
 
-const eventsModel = new EventsModel({
-  eventsApiService: new EventsApiService(END_POINT, AUTHORIZATION)
-});
-const destinationsModel = new DestinationsModel({
-  eventsApiService: new EventsApiService(END_POINT, AUTHORIZATION)
-});
-const offersModel = new OffersModel({
-  eventsApiService: new EventsApiService(END_POINT, AUTHORIZATION)
-});
+const eventsApiService = new EventsApiService(END_POINT, AUTHORIZATION);
 const filterModel = new FilterModel();
+const offersModel = new OffersModel({eventsApiService});
+const destinationsModel = new DestinationsModel({eventsApiService});
+const eventsModel = new EventsModel({
+  eventsApiService,
+  offersModel,
+  destinationsModel,
+});
 
 const boardPresenter = new BoardPresenter({
   boardContainer: bodyMainContainer,
@@ -58,5 +57,3 @@ render(createEventButtonViewComponent, buttonContainer);
 filterPresenter.init();
 boardPresenter.init();
 eventsModel.init();
-offersModel.init();
-destinationsModel.init();
