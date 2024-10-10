@@ -1,4 +1,5 @@
 import EventListView from '../view/events-list-view.js';
+import LoadingView from '../view/loading-view.js';
 import BoardView from '../view/board-view.js';
 import { remove, render } from '../framework/render.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
@@ -13,6 +14,7 @@ export default class BoardPresenter {
   #boardComponent = new BoardView;
   #eventListComponent = new EventListView;
   #emptyEventsListComponent = null;
+  #loadingComponent = new LoadingView;
   #boardContainer = null;
 
   #eventsModel = null;
@@ -25,11 +27,13 @@ export default class BoardPresenter {
 
   #handleCreateEventDestroy = null;
 
-  #currentSortType = SortType.DAY;
-  #currentFilterType = FilterType.EVERYTHING;
   #eventPresenters = new Map();
   #sortPresenter = null;
   #createEventPresenter = null;
+
+  #currentSortType = SortType.DAY;
+  #currentFilterType = FilterType.EVERYTHING;
+  #isLoading = true;
 
   constructor({boardContainer, eventsModel, destinationsModel, offersModel, filterModel, onCreateEventDestroy}) {
     this.#boardContainer = boardContainer;
@@ -37,9 +41,6 @@ export default class BoardPresenter {
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
     this.#filterModel = filterModel;
-
-    this.#allTypes = this.#offersModel.allTypes;
-    this.#destinationNames = this.#destinationsModel.destinationNames;
 
     this.#handleCreateEventDestroy = onCreateEventDestroy;
 
@@ -118,6 +119,11 @@ export default class BoardPresenter {
         this.#clearBoard({resetSortType: true});
         this.#renderBoard();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderBoard();
+        break;
     }
   };
 
@@ -156,6 +162,10 @@ export default class BoardPresenter {
     this.#renderBoard();
   };
 
+  #renderLoading() {
+    render(this.#loadingComponent, this.#boardComponent.element);
+  }
+
   #renderEmptyList(){
     this.#emptyEventsListComponent = new EmptyEventsListView({currentFilterType: this.#currentFilterType});
     render(this.#emptyEventsListComponent, this.#boardContainer);
@@ -173,6 +183,10 @@ export default class BoardPresenter {
   }
 
   #renderEvents() {
+    //Перенёс присваивание данных сюда, так как ранее данные с сервера отсутствовали в нужный момент
+    this.#allTypes = this.#offersModel.allTypes;
+    this.#destinationNames = this.#destinationsModel.destinationNames;
+
     for (let i = 0; i < this.events.length; i++) {
       const event = this.events[i];
       const eventData = {
@@ -193,7 +207,7 @@ export default class BoardPresenter {
     this.#clearEventList();
 
     remove(this.#emptyEventsListComponent);
-
+    remove(this.#loadingComponent);
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
       this.#removeSort();
@@ -207,6 +221,11 @@ export default class BoardPresenter {
 
   #renderBoard(){
     this.#renderContainers();
+
+    if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
 
     if (this.events.length === 0) {
       this.#renderEmptyList();
