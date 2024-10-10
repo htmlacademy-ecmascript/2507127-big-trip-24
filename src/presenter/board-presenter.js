@@ -42,9 +42,6 @@ export default class BoardPresenter {
     this.#offersModel = offersModel;
     this.#filterModel = filterModel;
 
-    this.#allTypes = this.#offersModel.allTypes;
-    this.#destinationNames = this.#destinationsModel.destinationNames;
-
     this.#handleCreateEventDestroy = onCreateEventDestroy;
 
     this.#eventsModel.addObserver(this.#handleModelEvent);
@@ -186,6 +183,10 @@ export default class BoardPresenter {
   }
 
   #renderEvents() {
+    //Перенёс присваивание данных сюда, так как ранее данные с сервера отсутствовали в нужный момент
+    this.#allTypes = this.#offersModel.allTypes;
+    this.#destinationNames = this.#destinationsModel.destinationNames;
+
     for (let i = 0; i < this.events.length; i++) {
       const event = this.events[i];
       const eventData = {
