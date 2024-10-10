@@ -1,9 +1,16 @@
 
-const FiltersEvent = {
+const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
+};
+
+const emptyFilterMessage = {
+  [FilterType.EVERYTHING]: 'Click New Event to create your first point',
+  [FilterType.FUTURE]: 'There are no future events now',
+  [FilterType.PRESENT]: 'There are no present events now',
+  [FilterType.PAST]: 'There are no past events now',
 };
 
 const SortType = {
@@ -22,5 +29,36 @@ const TimeFormat = {
   FORM_EDIT: 'DD/MM/YY HH:mm'
 };
 
+const UserAction = {
+  UPDATE_EVENT: 'UPDATE_EVENT',
+  ADD_EVENT: 'ADD_EVENT',
+  DELETE_EVENT: 'DELETE_EVENT',
+};
 
-export { SortType, TimeFormat, FiltersEvent };
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+const emptyEventData = {
+  destination: {
+    description: '',
+    id: '',
+    name: ''
+  },
+  event: {
+    basePrice: 0,
+    dateFrom: '',
+    dateTo: '',
+    destination: '',
+    id: '',
+    isFavorite: false,
+    offers: [],
+    type: 'flight'
+  },
+  offers: []
+};
+
+
+export { SortType, TimeFormat, FilterType, UserAction, UpdateType, emptyEventData, emptyFilterMessage};
