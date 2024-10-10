@@ -1,11 +1,23 @@
-import { mockDestinations } from '../mock/mock-destinations';
+
+export default class DestinationsModel {
+  #eventsApiService = null;
+  #destinations = [];
 
 
-export default class DestinationsModel{
-  #destinations = mockDestinations;
+  constructor({eventsApiService}){
+    this.#eventsApiService = eventsApiService;
+  }
 
   get destinations() {
     return this.#destinations;
+  }
+
+  async init(){
+    try {
+      this.#destinations = await this.#eventsApiService.destinations;
+    } catch (error) {
+      this.#destinations = [];
+    }
   }
 
   get destinationNames(){
