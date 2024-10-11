@@ -3,7 +3,7 @@ import { UpdateType, UserAction } from '../utils/const';
 import EventItemView from '../view/event-item-view';
 import FormEditEventView from '../view/form-edit-event-view';
 
-const mode = {
+const Mode = {
   DEFAULT: 'DEFAULT',
   EDITING: 'EDITING'
 };
@@ -23,7 +23,7 @@ export default class EventPresenter{
   #destinations = [];
   #destinationNames = [];
 
-  #mode = mode.DEFAULT;
+  #mode = Mode.DEFAULT;
 
   constructor({eventListContainer, onDataChange, onModeChange}) {
     this.#eventListContainer = eventListContainer;
@@ -65,12 +65,14 @@ export default class EventPresenter{
       return;
     }
 
-    if (this.#mode === mode.DEFAULT) {
+    if (this.#mode === Mode.DEFAULT) {
       replace(this.#eventComponent, prevEventComponent);
     }
 
-    if (this.#mode === mode.EDITING) {
-      replace(this.#eventEditComponent, prevEventEditComponent);
+    if (this.#mode === Mode.EDITING) {
+      // replace(this.#eventEditComponent, prevEventEditComponent);
+      replace(this.#eventComponent, prevEventEditComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevEventComponent);
@@ -134,8 +136,6 @@ export default class EventPresenter{
   };
 
   #handleFormSubmit = (event) => {
-    this.#replaceFormToEvent();
-
     //Выход из функции, если в форму редактирования не внесли изменения
     if (!event) {
       return;
@@ -170,17 +170,35 @@ export default class EventPresenter{
     }
   };
 
+  setSaving(){
+    if(this.#mode === Mode.EDITING){
+      this.#eventEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting(){
+    if(this.#mode === Mode.EDITING){
+      this.#eventEditComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
   #replaceEventToForm(){
     replace(this.#eventEditComponent, this.#eventComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#handleModeChange();
-    this.#mode = mode.EDITING;
+    this.#mode = Mode.EDITING;
   }
 
   #replaceFormToEvent(){
     replace(this.#eventComponent, this.#eventEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
-    this.#mode = mode.DEFAULT;
+    this.#mode = Mode.DEFAULT;
   }
 
 }

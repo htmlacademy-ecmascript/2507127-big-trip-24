@@ -31,16 +31,18 @@ export default class BoardPresenter {
   #sortPresenter = null;
   #createEventPresenter = null;
 
+  #createEventButtonComponent = null;
   #currentSortType = SortType.DAY;
   #currentFilterType = FilterType.EVERYTHING;
   #isLoading = true;
 
-  constructor({boardContainer, eventsModel, destinationsModel, offersModel, filterModel, onCreateEventDestroy}) {
+  constructor({boardContainer, eventsModel, destinationsModel, offersModel, filterModel, onCreateEventDestroy, createEventButton}) {
     this.#boardContainer = boardContainer;
     this.#eventsModel = eventsModel;
     this.#destinationsModel = destinationsModel;
     this.#offersModel = offersModel;
     this.#filterModel = filterModel;
+    this.#createEventButtonComponent = createEventButton;
 
     this.#handleCreateEventDestroy = onCreateEventDestroy;
 
@@ -91,14 +93,19 @@ export default class BoardPresenter {
   }
 
   #handleViewAction = (actionType, updateType, update) => {
+    const {eventData} = update;
+
     switch(actionType){
       case UserAction.UPDATE_EVENT:
+        this.#eventPresenters.get(eventData.event.id).setSaving();
         this.#eventsModel.updateEvent(updateType,update);
         break;
       case UserAction.ADD_EVENT:
+        this.#createEventPresenter.setSaving();
         this.#eventsModel.addEvent(updateType,update);
         break;
       case UserAction.DELETE_EVENT:
+        this.#eventPresenters.get(eventData.event.id).setDeleting();
         this.#eventsModel.deleteEvent(updateType,update);
         break;
     }
@@ -121,6 +128,7 @@ export default class BoardPresenter {
         this.#isLoading = false;
         remove(this.#loadingComponent);
         this.#renderBoard();
+        this.#createEventButtonComponent.element.disabled = false;
         break;
     }
   };
@@ -206,6 +214,7 @@ export default class BoardPresenter {
 
     remove(this.#emptyEventsListComponent);
     remove(this.#loadingComponent);
+    this.#createEventButtonComponent.element.disabled = false;
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
       this.#removeSort();
@@ -221,6 +230,7 @@ export default class BoardPresenter {
     this.#renderContainers();
 
     if (this.#isLoading) {
+      this.#createEventButtonComponent.element.disabled = true;
       this.#renderLoading();
       return;
     }
@@ -233,6 +243,12 @@ export default class BoardPresenter {
       this.#renderSort();
     }
     this.#renderEvents();
+
+    //Уничтожаю форму создания после ре-рендера эвент-поинтов
+    if (this.#createEventPresenter !== null) {
+      this.#createEventPresenter.destroy();
+      return;
+    }
     this.#initCreatePresenter();
   }
 }

@@ -56,6 +56,13 @@ export default class CreateEventPresenter{
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
+  setSaving(){
+    this.#formEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
   #handleFormSubmit = (data) =>{
     if (!data) {
       return;
@@ -68,7 +75,7 @@ export default class CreateEventPresenter{
       UpdateType.MINOR,
       event
     );
-    this.destroy();
+    // this.destroy();
   };
 
   #handleFormCancel = () => {
