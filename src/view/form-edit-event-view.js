@@ -428,7 +428,9 @@ export default class FormEditEventView extends AbstractStatefulView{
       event.userDateFrom,
       event.userDateTo
     ];
-    if (allNewProperties.every((property) => property === undefined) && isOffersEqual && isPircesEqual) {
+    const isNoChanges = allNewProperties.every((property) => property === undefined) && isOffersEqual && isPircesEqual;
+    const isZeroPrice = currentPrice < 1;
+    if (isZeroPrice || isNoChanges) {
       return;
     }
 

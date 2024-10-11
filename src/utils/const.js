@@ -53,7 +53,6 @@ const emptyEventData = {
     dateFrom: '',
     dateTo: '',
     destination: '',
-    id: '',
     isFavorite: false,
     offers: [],
     type: 'flight'

@@ -57,7 +57,6 @@ export default class BoardPresenter {
 
   init() {
     this.#renderBoard();
-    this.#initCreatePresenter();
   }
 
   #initCreatePresenter(){
@@ -70,7 +69,6 @@ export default class BoardPresenter {
       onDataChange: this.#handleViewAction,
       onDestroy: this.#createEventDestroyHandler
     });
-
   }
 
   #createEventDestroyHandler = () => {
@@ -235,6 +233,7 @@ export default class BoardPresenter {
       this.#renderSort();
     }
     this.#renderEvents();
+    this.#initCreatePresenter();
   }
 }
 

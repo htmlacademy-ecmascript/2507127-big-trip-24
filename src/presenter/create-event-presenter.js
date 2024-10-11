@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import { remove, render, RenderPosition } from '../framework/render';
 import { UpdateType, UserAction } from '../utils/const';
 import FormEditEventView from '../view/form-edit-event-view';
@@ -58,9 +57,11 @@ export default class CreateEventPresenter{
   }
 
   #handleFormSubmit = (data) =>{
+    if (!data) {
+      return;
+    }
     const { eventData} = data;
     const { event } = eventData;
-    event.id = nanoid();
 
     this.#handleDataChange(
       UserAction.ADD_EVENT,
