@@ -63,6 +63,18 @@ export default class CreateEventPresenter{
     });
   }
 
+  setAborting(){
+    const resetFormState = () => {
+      this.#formEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#formEditComponent.shake(resetFormState);
+  }
+
   #handleFormSubmit = (data) =>{
     if (!data) {
       return;

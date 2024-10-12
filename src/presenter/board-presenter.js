@@ -92,23 +92,38 @@ export default class BoardPresenter {
     render(this.#eventListComponent, this.#boardContainer);
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
     const {eventData} = update;
 
     switch(actionType){
       case UserAction.UPDATE_EVENT:
         this.#createEventButtonComponent.element.disabled = true;
         this.#eventPresenters.get(eventData.event.id).setSaving();
-        this.#eventsModel.updateEvent(updateType,update);
+        try {
+          await this.#eventsModel.updateEvent(updateType,update);
+        } catch (error) {
+          this.#eventPresenters.get(eventData.event.id).setAborting();
+          this.#createEventButtonComponent.element.disabled = false;
+        }
         break;
       case UserAction.ADD_EVENT:
         this.#createEventPresenter.setSaving();
-        this.#eventsModel.addEvent(updateType,update);
+        try {
+          await this.#eventsModel.addEvent(updateType,update);
+        } catch (error) {
+          this.#createEventPresenter.setAborting();
+          this.#createEventButtonComponent.element.disabled = false;
+        }
         break;
       case UserAction.DELETE_EVENT:
         this.#createEventButtonComponent.element.disabled = true;
         this.#eventPresenters.get(eventData.event.id).setDeleting();
-        this.#eventsModel.deleteEvent(updateType,update);
+        try {
+          await this.#eventsModel.deleteEvent(updateType,update);
+        } catch (error) {
+          this.#eventPresenters.get(eventData.event.id).setAborting();
+          this.#createEventButtonComponent.element.disabled = false;
+        }
         break;
     }
   };
