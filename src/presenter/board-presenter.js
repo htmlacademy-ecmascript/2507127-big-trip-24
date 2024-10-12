@@ -97,6 +97,7 @@ export default class BoardPresenter {
 
     switch(actionType){
       case UserAction.UPDATE_EVENT:
+        this.#createEventButtonComponent.element.disabled = true;
         this.#eventPresenters.get(eventData.event.id).setSaving();
         this.#eventsModel.updateEvent(updateType,update);
         break;
@@ -105,6 +106,7 @@ export default class BoardPresenter {
         this.#eventsModel.addEvent(updateType,update);
         break;
       case UserAction.DELETE_EVENT:
+        this.#createEventButtonComponent.element.disabled = true;
         this.#eventPresenters.get(eventData.event.id).setDeleting();
         this.#eventsModel.deleteEvent(updateType,update);
         break;
@@ -115,6 +117,7 @@ export default class BoardPresenter {
     switch(updateType){
       case UpdateType.PATCH:
         this.#eventPresenters.get(data.eventData.event.id).init(data);
+        this.#createEventButtonComponent.element.disabled = false;
         break;
       case UpdateType.MINOR:
         this.#clearBoard();
