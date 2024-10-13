@@ -4,6 +4,7 @@ import BoardView from '../view/board-view.js';
 import { remove, render } from '../framework/render.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
+import InitErrorView from '../view/init-error.js';
 import EventPresenter from './event-presenter.js';
 import { FilterType, SortType, UpdateType, UserAction } from '../utils/const.js';
 import { sortEventsData } from '../utils/sort.js';
@@ -20,6 +21,7 @@ export default class BoardPresenter {
   #boardComponent = new BoardView;
   #eventListComponent = new EventListView;
   #emptyEventsListComponent = null;
+  #initErrorComponent = null;
   #loadingComponent = new LoadingView;
   #boardContainer = null;
 
@@ -162,6 +164,10 @@ export default class BoardPresenter {
         this.#renderBoard();
         this.#createEventButtonComponent.element.disabled = false;
         break;
+      case UpdateType.ERROR:
+        this.#clearBoard();
+        this.#renderBoard({isError: true});
+        break;
     }
   };
 
@@ -207,6 +213,11 @@ export default class BoardPresenter {
   #renderEmptyList(){
     this.#emptyEventsListComponent = new EmptyEventsListView({currentFilterType: this.#currentFilterType});
     render(this.#emptyEventsListComponent, this.#boardContainer);
+  }
+
+  #renderInitError(){
+    this.#initErrorComponent = new InitErrorView();
+    render(this.#initErrorComponent, this.#boardContainer);
   }
 
   #renderEvent(eventData, typeOffers, allTypes, destinations, destinationNames){
@@ -258,8 +269,13 @@ export default class BoardPresenter {
     this.#eventPresenters.clear();
   }
 
-  #renderBoard(){
+  #renderBoard({isError = false} = {}){
     this.#renderContainers();
+
+    if (isError) {
+      this.#renderInitError();
+      return;
+    }
 
     if (this.#isLoading) {
       this.#createEventButtonComponent.element.disabled = true;

@@ -26,9 +26,15 @@ export default class EventsModel extends Observable{
       this.#events = events.map(this.#adaptToClient);
     } catch (error) {
       this.#events = [];
+      this.#showError();
+      return;
     }
 
     this._notify(UpdateType.INIT);
+  }
+
+  #showError(){
+    this._notify(UpdateType.ERROR);
   }
 
   async updateEvent(updateType, update){
