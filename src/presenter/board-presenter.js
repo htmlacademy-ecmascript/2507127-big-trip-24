@@ -2,6 +2,7 @@ import EventListView from '../view/events-list-view.js';
 import LoadingView from '../view/loading-view.js';
 import BoardView from '../view/board-view.js';
 import { remove, render } from '../framework/render.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
 import EventPresenter from './event-presenter.js';
 import { FilterType, SortType, UpdateType, UserAction } from '../utils/const.js';
@@ -9,6 +10,11 @@ import { sortEventsData } from '../utils/sort.js';
 import SortPresenter from './sort-presenter.js';
 import CreateEventPresenter from './create-event-presenter.js';
 import { filter } from '../utils/filter.js';
+
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
 export default class BoardPresenter {
   #boardComponent = new BoardView;
@@ -35,6 +41,10 @@ export default class BoardPresenter {
   #currentSortType = SortType.DAY;
   #currentFilterType = FilterType.EVERYTHING;
   #isLoading = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT,
+  });
 
   constructor({boardContainer, eventsModel, destinationsModel, offersModel, filterModel, onCreateEventDestroy, createEventButton}) {
     this.#boardContainer = boardContainer;
@@ -95,6 +105,8 @@ export default class BoardPresenter {
   #handleViewAction = async (actionType, updateType, update) => {
     const {eventData} = update;
 
+    this.#uiBlocker.block();
+
     switch(actionType){
       case UserAction.UPDATE_EVENT:
         this.#createEventButtonComponent.element.disabled = true;
@@ -126,6 +138,8 @@ export default class BoardPresenter {
         }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModelEvent = (updateType, data) => {

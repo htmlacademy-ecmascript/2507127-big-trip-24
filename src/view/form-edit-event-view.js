@@ -330,7 +330,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     if (!this.#isCreatingEvent) {
       this.element.addEventListener('submit', this.#formSubmitHandler);
       this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
-      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#handleFormDelete);
+      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteHandler);
     } else {
       this.element.addEventListener('submit', this.#formCreateHandler);
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCancelHandler);
@@ -408,6 +408,11 @@ export default class FormEditEventView extends AbstractStatefulView{
   #formCloseHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormClose();
+  };
+
+  #formDeleteHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormDelete();
   };
 
   #formCancelHandler = (evt) => {
