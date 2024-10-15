@@ -2,7 +2,9 @@ import ApiService from './framework/api-service';
 
 const Method = {
   GET: 'GET',
-  PUT: 'PUT'
+  PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE',
 };
 
 export default class EventsApiService extends ApiService {
@@ -34,6 +36,28 @@ export default class EventsApiService extends ApiService {
     return parsedResponse;
   }
 
+  async addEvent(event){
+    const response = await this._load({
+      url: 'points',
+      method: Method.POST,
+      body: JSON.stringify(this.#adaptToServer(event)),
+      headers: new Headers({'Content-Type': 'application/json'}),
+    });
+
+    const parsedResponse = await ApiService.parseResponse(response);
+
+    return parsedResponse;
+  }
+
+  async deleteEvent(event){
+    const response = await this._load({
+      url: `points/${event.id}`,
+      method: Method.DELETE,
+    });
+
+    return response;
+  }
+
   #adaptToServer(event){
     const adaptedEvent = {...event,
       'base_price': event.basePrice,
@@ -46,7 +70,6 @@ export default class EventsApiService extends ApiService {
     delete adaptedEvent.dateFrom;
     delete adaptedEvent.dateTo;
     delete adaptedEvent.isFavorite;
-
     return adaptedEvent;
   }
 }

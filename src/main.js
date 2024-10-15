@@ -15,6 +15,10 @@ const buttonContainer = document.querySelector('.trip-main');
 const siteTripControlsFilters = document.querySelector('.trip-controls__filters');
 const bodyMainContainer = document.querySelector('main .page-body__container');
 
+const createEventButtonViewComponent = new CreateEventButtonView({
+  onClick: handleCreateEventButtonClick
+});
+
 const eventsApiService = new EventsApiService(END_POINT, AUTHORIZATION);
 const filterModel = new FilterModel();
 const offersModel = new OffersModel({eventsApiService});
@@ -31,17 +35,14 @@ const boardPresenter = new BoardPresenter({
   destinationsModel,
   offersModel,
   filterModel,
-  onCreateEventDestroy: handleCreateEventFormClose
+  onCreateEventDestroy: handleCreateEventFormClose,
+  createEventButton: createEventButtonViewComponent
 });
 
 const filterPresenter = new FilterPresenter({
   filterContainer: siteTripControlsFilters,
   filterModel,
   eventsModel
-});
-
-const createEventButtonViewComponent = new CreateEventButtonView({
-  onClick: handleCreateEventButtonClick
 });
 
 function handleCreateEventButtonClick(){
