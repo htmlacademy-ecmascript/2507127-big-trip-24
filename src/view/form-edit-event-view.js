@@ -14,7 +14,7 @@ function createEventTypeItemTemplate(type, checkedType) {
   `;
 }
 
-function createFormHeaderTypeTemplate(event, allTypes, currentEventType){
+function createFormHeaderTypeTemplate(event, allTypes, currentEventType, isDisabled){
   const checkedType = currentEventType || event.type;
   const eventTypeList = allTypes.map((type) => createEventTypeItemTemplate(type, checkedType)).join('');
 
@@ -24,7 +24,7 @@ function createFormHeaderTypeTemplate(event, allTypes, currentEventType){
                       <span class="visually-hidden">Choose event type</span>
                       <img class="event__type-icon" width="17" height="17" src="img/icons/${currentEventType || event.type}.png" alt="Event type icon">
                     </label>
-                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? 'disabled' : ''}>
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
@@ -40,7 +40,7 @@ function createDestinationOptionTemplate(destination) {
   return `<option value="${destination}"></option>`;
 }
 
-function createFormHeaderEventNameTemplate({event, destination, destinationNames, currentEventType, currentDestinationName}){
+function createFormHeaderEventNameTemplate({event, destination, destinationNames, currentEventType, currentDestinationName, isDisabled}){
   const destinationOptions = destinationNames.map((destinationName) => createDestinationOptionTemplate(destinationName)).join('');
 
   // На случай, если пользователь введет название пункта назначения отсутствующего в списке
@@ -54,7 +54,7 @@ function createFormHeaderEventNameTemplate({event, destination, destinationNames
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${currentEventType || event.type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationValue || destination.name}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationValue || destination.name}" list="destination-list-1" ${isDisabled ? 'disabled' : ''}>
                     <datalist id="destination-list-1">
                       ${destinationOptions}
                     </datalist>
@@ -62,67 +62,72 @@ function createFormHeaderEventNameTemplate({event, destination, destinationNames
   `;
 }
 
-function createFormHeaderTimeTemplate(event){
+function createFormHeaderTimeTemplate(event, isDisabled){
   const startTime = humanizeDate(event.dateFrom, TimeFormat.FORM_EDIT);
   const endTime = humanizeDate(event.dateTo, TimeFormat.FORM_EDIT);
 
   return `
     <div class="event__field-group  event__field-group--time">
       <label class="visually-hidden" for="event-start-time-1">From</label>
-      <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}">
+      <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}" ${isDisabled ? 'disabled' : ''}>
       &mdash;
       <label class="visually-hidden" for="event-end-time-1">To</label>
-      <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}">
+      <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}" ${isDisabled ? 'disabled' : ''}>
     </div>
   `;
 }
 
-function createFormHeaderPriceTemplate({basePrice}){
+function createFormHeaderPriceTemplate(event, isDisabled){
+  const {basePrice} = event;
+
   return `
     <div class="event__field-group  event__field-group--price">
                     <label class="event__label" for="event-price-1">
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}" ${isDisabled ? 'disabled' : ''}>
                   </div>
   `;
 }
 
-function createRollUpButtonTemplate(){
+function createRollUpButtonTemplate(isDisabled){
   return `
-    <button class="event__rollup-btn" type="button">
+    <button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
       <span class="visually-hidden">Open event</span>
     </button>
   `;
 }
 
-function createFormHeaderButtonsTemplate(isCreatingEvent){
+function createFormHeaderButtonsTemplate(isCreatingEvent, isDisabled, isSaving, isDeleting){
+  const deleteButton = isDeleting ? 'Deleting...' : 'Delete';
+  const cancelButton = 'Cancel';
+
   return `
-    <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-    <button class="event__reset-btn" type="reset">${ !isCreatingEvent ? 'Delete' : 'Cancel'}</button>
-    ${!isCreatingEvent ? createRollUpButtonTemplate() : ''}
+    <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+    <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>${ !isCreatingEvent ? deleteButton : cancelButton}</button>
+    ${!isCreatingEvent ? createRollUpButtonTemplate(isDisabled) : ''}
   `;
 }
 
-function createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName, isCreatingEvent}) {
+function createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName, isCreatingEvent, isDisabled, isSaving, isDeleting}) {
 
   return `
     <header class="event__header">
-                  ${createFormHeaderTypeTemplate(event, allTypes, currentEventType)}
-                  ${createFormHeaderEventNameTemplate({event, destination, destinationNames, currentEventType, currentDestinationName})}
-                  ${createFormHeaderTimeTemplate(event)}
-                  ${createFormHeaderPriceTemplate(event)}
-                  ${createFormHeaderButtonsTemplate(isCreatingEvent)}
+                  ${createFormHeaderTypeTemplate(event, allTypes, currentEventType, isDisabled)}
+                  ${createFormHeaderEventNameTemplate({event, destination, destinationNames, currentEventType, currentDestinationName, isDisabled})}
+                  ${createFormHeaderTimeTemplate(event, isDisabled)}
+                  ${createFormHeaderPriceTemplate(event, isDisabled)}
+                  ${createFormHeaderButtonsTemplate(isCreatingEvent, isDisabled, isSaving, isDeleting)}
                 </header>
   `;
 }
 
-function createEventOfferTemplate(offer, choosedOffers){
+function createEventOfferTemplate(offer, choosedOffers, isDisabled){
   const isChoosedOffer = choosedOffers.includes(offer.id);
   return `
     <div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.title}-1" type="checkbox" name="event-offer-${offer.title}" ${isChoosedOffer ? 'checked' : ''} data-offer="${offer.title}">
+                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.title}-1" type="checkbox" name="event-offer-${offer.title}" ${isChoosedOffer ? 'checked' : ''} data-offer="${offer.title}" ${isDisabled ? 'disabled' : ''}>
                         <label class="event__offer-label" for="event-offer-${offer.title}-1">
                           <span class="event__offer-title">${offer.title}</span>
                           &plus;&euro;&nbsp;
@@ -198,14 +203,17 @@ function createFormAddEventTemplate({
   currentDestinationName,
   destinations,
   currentEventType,
-  isCreatingEvent
+  isCreatingEvent,
+  isDisabled,
+  isSaving,
+  isDeleting
 }) {
   const {event, destination} = eventData;
   const choosedOffers = event.offers;
 
   let updatedOffers, initialOffers;
 
-  const getCurrentOffers = (offers) => offers?.map((offer) => createEventOfferTemplate(offer, choosedOffers)).join('');
+  const getCurrentOffers = (offers) => offers?.map((offer) => createEventOfferTemplate(offer, choosedOffers, isDisabled)).join('');
 
   if (currentEventType) {
     const actualOffers = allOffers.find((offers) => offers.type === currentEventType).offers;
@@ -224,7 +232,7 @@ function createFormAddEventTemplate({
 
   return `
     <form class="event event--edit" action="#" method="post">
-      ${createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName, isCreatingEvent})}
+      ${createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName, isCreatingEvent, isDisabled, isSaving, isDeleting})}
       ${createEventDetailsTemplate(offersList, createEventDestinationTemplate(updatedDestination || destination))}
     </form>
   `;
@@ -301,6 +309,9 @@ export default class FormEditEventView extends AbstractStatefulView{
     delete this._state.currentDestinationName;
     delete this._state.userDateFrom;
     delete this._state.userDateTo;
+    delete this._state.isDisabled;
+    delete this._state.isSaving;
+    delete this._state.isDeleting;
 
     this.updateElement(FormEditEventView.parseEventToState(event));
   }
@@ -319,7 +330,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     if (!this.#isCreatingEvent) {
       this.element.addEventListener('submit', this.#formSubmitHandler);
       this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
-      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#handleFormDelete);
+      this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteHandler);
     } else {
       this.element.addEventListener('submit', this.#formCreateHandler);
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCancelHandler);
@@ -399,6 +410,11 @@ export default class FormEditEventView extends AbstractStatefulView{
     this.#handleFormClose();
   };
 
+  #formDeleteHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormDelete();
+  };
+
   #formCancelHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormCancel();
@@ -426,9 +442,11 @@ export default class FormEditEventView extends AbstractStatefulView{
       event.currentEventType,
       event.currentDestinationName,
       event.userDateFrom,
-      event.userDateTo
+      event.userDateTo,
     ];
-    if (allNewProperties.every((property) => property === undefined) && isOffersEqual && isPircesEqual) {
+    const isNoChanges = allNewProperties.every((property) => property === undefined) && isOffersEqual && isPircesEqual;
+    const isZeroPrice = currentPrice < 1;
+    if (isZeroPrice || isNoChanges) {
       return;
     }
 
@@ -482,12 +500,19 @@ export default class FormEditEventView extends AbstractStatefulView{
     delete event.currentDestinationName;
     delete event.userDateFrom;
     delete event.userDateTo;
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeleting;
 
     return event;
   }
 
   static parseEventToState(event){
-    return {...event};
+    return {...event,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
   }
 
   static parseStateToEvent(state, changeData){

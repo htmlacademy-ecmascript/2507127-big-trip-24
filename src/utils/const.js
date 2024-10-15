@@ -40,6 +40,7 @@ const UpdateType = {
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
   INIT: 'INIT',
+  ERROR: 'ERROR',
 };
 
 const emptyEventData = {
@@ -53,7 +54,6 @@ const emptyEventData = {
     dateFrom: '',
     dateTo: '',
     destination: '',
-    id: '',
     isFavorite: false,
     offers: [],
     type: 'flight'
