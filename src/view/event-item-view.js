@@ -42,7 +42,7 @@ function createEventScheduleTemplate({dateFrom, dateTo}){
       <p class="event__time">
         <time class="event__start-time" datetime=${humanizeDate(dateFrom, TimeFormat.DATETIME_FULL)}>${humanizeDate(dateFrom, TimeFormat.TIME)}</time>
         &mdash;
-        <time class="event__end-time" datetime=${humanizeDate(dateFrom, TimeFormat.DATETIME_FULL)}>${humanizeDate(dateTo, TimeFormat.TIME)}</time>
+        <time class="event__end-time" datetime=${humanizeDate(dateTo, TimeFormat.DATETIME_FULL)}>${humanizeDate(dateTo, TimeFormat.TIME)}</time>
       </p>
       <p class="event__duration">${timeDifference}</p>
     </div>

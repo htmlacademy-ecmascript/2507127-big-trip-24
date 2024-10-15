@@ -7,7 +7,7 @@ function humanizeDate(date, format){
 }
 
 function getTimeDifference(dateFrom, dateTo) {
-  const difference = dayjs(dateTo).diff(dayjs(dateFrom));
+  const difference = dayjs(dateTo).diff(dateFrom);
 
   const msecInDay = 86400000;
   const msecInHour = 3600000;
@@ -15,6 +15,11 @@ function getTimeDifference(dateFrom, dateTo) {
   let eventDuration;
 
   switch(true){
+    case(difference >= (msecInDay * 10)):
+      eventDuration = dayjs.duration(difference).format('DD[D] HH[H] mm[M]').split(' ');
+      eventDuration[0] = `${dayjs(dateTo).diff(dateFrom, 'day') }D`;
+      eventDuration = eventDuration.join(' ');
+      break;
     case(difference >= msecInDay):
       eventDuration = dayjs.duration(difference).format('DD[D] HH[H] mm[M]');
       break;

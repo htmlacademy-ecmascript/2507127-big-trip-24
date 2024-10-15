@@ -274,6 +274,7 @@ export default class BoardPresenter {
 
     if (isError) {
       this.#renderInitError();
+      this.#createEventButtonComponent.element.disabled = true;
       return;
     }
 

@@ -54,7 +54,7 @@ function createFormHeaderEventNameTemplate({event, destination, destinationNames
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${currentEventType || event.type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationValue || destination.name}" list="destination-list-1" ${isDisabled ? 'disabled' : ''}>
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationValue || destination.name}" list="destination-list-1" ${isDisabled ? 'disabled' : ''} required>
                     <datalist id="destination-list-1">
                       ${destinationOptions}
                     </datalist>
@@ -69,10 +69,10 @@ function createFormHeaderTimeTemplate(event, isDisabled){
   return `
     <div class="event__field-group  event__field-group--time">
       <label class="visually-hidden" for="event-start-time-1">From</label>
-      <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}" ${isDisabled ? 'disabled' : ''}>
+      <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}" ${isDisabled ? 'disabled' : ''} required>
       &mdash;
       <label class="visually-hidden" for="event-end-time-1">To</label>
-      <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}" ${isDisabled ? 'disabled' : ''}>
+      <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}" ${isDisabled ? 'disabled' : ''} required>
     </div>
   `;
 }
@@ -86,7 +86,7 @@ function createFormHeaderPriceTemplate(event, isDisabled){
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}" ${isDisabled ? 'disabled' : ''}>
+                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}" ${isDisabled ? 'disabled' : ''} min="1" required>
                   </div>
   `;
 }

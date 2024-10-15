@@ -70,7 +70,6 @@ export default class EventPresenter{
     }
 
     if (this.#mode === Mode.EDITING) {
-      // replace(this.#eventEditComponent, prevEventEditComponent);
       replace(this.#eventComponent, prevEventEditComponent);
       this.#mode = Mode.DEFAULT;
     }

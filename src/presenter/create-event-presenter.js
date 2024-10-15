@@ -87,7 +87,6 @@ export default class CreateEventPresenter{
       UpdateType.MINOR,
       event
     );
-    // this.destroy();
   };
 
   #handleFormCancel = () => {
