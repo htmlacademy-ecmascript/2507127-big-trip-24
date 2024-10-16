@@ -140,14 +140,12 @@ export default class EventPresenter{
       return;
     }
 
-    this.#eventData = event.eventData;
-
     //Ре-рендер эвент-поинта с обновленными данными
     this.#handleDataChange(
       UserAction.UPDATE_EVENT,
       UpdateType.MINOR,
       {
-        eventData: this.#eventData,
+        eventData: event.eventData,
         typeOffers: this.#typeOffers,
         allTypes: this.#allTypes,
         allOffers: this.#allOffers,

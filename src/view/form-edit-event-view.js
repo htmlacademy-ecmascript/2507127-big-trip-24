@@ -275,6 +275,7 @@ export default class FormEditEventView extends AbstractStatefulView{
       destinationNames,
       typeOffers,
       allOffers,
+      initialOffers: eventData.offers,
       isCreatingEvent: this.#isCreatingEvent
     }));
 
@@ -428,7 +429,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     const event = {...state};
 
     //Получение и сравнение начальных/текущих выбранных офферов
-    const initialCheckedOffers = [...event.eventData.offers.map((offer) => offer.title)];
+    const initialCheckedOffers = [...event.initialOffers.map((offer) => offer.title)];
     const currentCheckedOffers = getCheckedOfferTitles();
     const isOffersEqual = currentCheckedOffers.every((offer) => initialCheckedOffers.includes(offer)) && initialCheckedOffers.every((offer) => currentCheckedOffers.includes(offer));
 
