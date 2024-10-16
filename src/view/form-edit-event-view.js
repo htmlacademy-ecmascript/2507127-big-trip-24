@@ -341,19 +341,19 @@ export default class FormEditEventView extends AbstractStatefulView{
   #setDatepickers(){
     this.#datepickerStart = flatpickr(
       this.element.querySelector('input[name="event-start-time"]'), {
-        dateFormat: 'd/m/y H:m',
+        dateFormat: 'd/m/y H:i',
         'time_24hr': true,
         defaultDate: this._state.userDateFrom || this._state.eventData.event.dateFrom,
-        onClose: this.#dateFromChangeHandler,
+        onChange: this.#dateFromChangeHandler,
         enableTime: true,
       });
 
     this.#datepickerEnd = flatpickr(
       this.element.querySelector('input[name="event-end-time"]'), {
-        dateFormat: 'd/m/y H:m',
+        dateFormat: 'd/m/y H:i',
         'time_24hr': true,
         defaultDate: this._state.userDateTo || this._state.eventData.event.dateTo,
-        onClose: this.#dateToChangeHandler,
+        onChange: this.#dateToChangeHandler,
         enableTime: true,
         minDate: this._state.userDateFrom || this._state.eventData.event.dateFrom
       });
