@@ -320,7 +320,7 @@ export default class FormEditEventView extends AbstractStatefulView{
   _restoreHandlers(){
     this.element.querySelector('.event__type-group').addEventListener('click', this.#formChangeTypeHandler);
     this.element.querySelector('.event__input.event__input--destination').addEventListener('change', this.#formChangeDestinationHandler);
-    this.element.querySelector('.event__input--price').addEventListener('input', this.#inputPriceHandler);
+    this.element.querySelector('.event__input--price').addEventListener('keydown', this.#inputPriceHandler);
 
     this.#setDatepickers();
 
@@ -376,12 +376,14 @@ export default class FormEditEventView extends AbstractStatefulView{
     if (targetInput) {
       this.element.querySelector('.event__type-toggle').value = targetInput.value;
 
+      this._state.eventData.event.basePrice = this.element.querySelector('.event__input--price').value;
       this.updateElement({currentEventType: targetInput.value});
     }
   };
 
   #formChangeDestinationHandler = (evt) => {
     evt.preventDefault();
+    this._state.eventData.event.basePrice = this.element.querySelector('.event__input--price').value;
     this.updateElement({currentDestinationName: evt.target.value});
   };
 
@@ -422,7 +424,9 @@ export default class FormEditEventView extends AbstractStatefulView{
   };
 
   #inputPriceHandler = (evt) => {
-    evt.target.value = evt.target.value.replace(/\D+/g, '');
+    if(isNaN(evt.key)) {
+      evt.preventDefault();
+    }
   };
 
   #changeEventData(state, closeForm){
