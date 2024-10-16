@@ -86,7 +86,7 @@ function createFormHeaderPriceTemplate(event, isDisabled){
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}" ${isDisabled ? 'disabled' : ''} min="1" required>
+                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" ${isDisabled ? 'disabled' : ''} min="1" required>
                   </div>
   `;
 }
@@ -398,12 +398,12 @@ export default class FormEditEventView extends AbstractStatefulView{
       return;
     }
 
-    this.#handleFormCreate(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData));
+    this.#handleFormCreate(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData, this.#handleFormClose));
   };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData));
+    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData, this.#handleFormClose));
   };
 
   #formCloseHandler = (evt) => {
@@ -425,7 +425,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     evt.target.value = evt.target.value.replace(/\D+/g, '');
   };
 
-  #changeEventData(state){
+  #changeEventData(state, closeForm){
     const event = {...state};
 
     //Получение и сравнение начальных/текущих выбранных офферов
@@ -446,8 +446,8 @@ export default class FormEditEventView extends AbstractStatefulView{
       event.userDateTo,
     ];
     const isNoChanges = allNewProperties.every((property) => property === undefined) && isOffersEqual && isPircesEqual;
-    const isZeroPrice = currentPrice < 1;
-    if (isZeroPrice || isNoChanges) {
+    if (isNoChanges) {
+      closeForm();
       return;
     }
 
@@ -516,7 +516,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     };
   }
 
-  static parseStateToEvent(state, changeData){
-    return changeData(state);
+  static parseStateToEvent(state, changeData, closeForm){
+    return changeData(state, closeForm);
   }
 }
