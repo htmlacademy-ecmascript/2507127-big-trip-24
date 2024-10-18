@@ -1,5 +1,6 @@
 import Observable from '../framework/observable';
 import { UpdateType } from '../utils/const';
+import { showLoadingErrorMessage } from '../utils/loading-error';
 
 export default class EventsModel extends Observable{
   #eventsApiService = null;
@@ -33,10 +34,6 @@ export default class EventsModel extends Observable{
     this._notify(UpdateType.INIT);
   }
 
-  #showError(){
-    this._notify(UpdateType.ERROR);
-  }
-
   async updateEvent(updateType, update){
     const {eventData} = update;
     const index = this.#events.findIndex((event) => event.id === eventData.event.id);
@@ -57,6 +54,7 @@ export default class EventsModel extends Observable{
       update.eventData.event = updatedEvent;
       this._notify(updateType, update);
     } catch (error) {
+      showLoadingErrorMessage(error);
       throw new Error('Can\'t update event');
     }
   }
@@ -69,6 +67,7 @@ export default class EventsModel extends Observable{
 
       this._notify(updateType, newEvent);
     } catch (error) {
+      showLoadingErrorMessage(error);
       throw new Error('Can\'t add event');
     }
   }
@@ -90,6 +89,7 @@ export default class EventsModel extends Observable{
 
       this._notify(updateType);
     } catch (error) {
+      showLoadingErrorMessage(error);
       throw new Error('Can\'t delete event');
     }
   }
@@ -108,5 +108,9 @@ export default class EventsModel extends Observable{
     delete adaptedEvent['is_favorite'];
 
     return adaptedEvent;
+  }
+
+  #showError(){
+    this._notify(UpdateType.ERROR);
   }
 }

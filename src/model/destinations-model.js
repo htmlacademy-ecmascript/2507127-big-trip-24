@@ -12,16 +12,16 @@ export default class DestinationsModel {
     return this.#destinations;
   }
 
+  get destinationNames(){
+    return this.destinations.map((destination) => destination.name);
+  }
+
   async init(){
     try {
       this.#destinations = await this.#eventsApiService.destinations;
     } catch (error) {
       this.#destinations = [];
     }
-  }
-
-  get destinationNames(){
-    return this.destinations.map((destination) => destination.name);
   }
 
   getDestinationById(id) {

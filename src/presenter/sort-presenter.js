@@ -20,12 +20,6 @@ export default class SortPresenter{
     this.#renderSort();
   }
 
-  #handleSortTypeChange = (sortType) =>{
-    this.#currentSortType = sortType;
-    this.#onSortTypeChange(sortType);
-    this.#renderSort();
-  };
-
   destroy(){
     remove(this.#sortComponent);
   }
@@ -46,4 +40,10 @@ export default class SortPresenter{
     replace(this.#sortComponent, prevSortComponent);
     remove(prevSortComponent);
   }
+
+  #handleSortTypeChange = (sortType) =>{
+    this.#currentSortType = sortType;
+    this.#onSortTypeChange(sortType);
+    this.#renderSort();
+  };
 }

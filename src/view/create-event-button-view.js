@@ -17,11 +17,11 @@ export default class CreateEventButtonView extends AbstractView{
     this.#setEventListeres();
   }
 
-  #setEventListeres(){
-    this.element.addEventListener('click', this.#handleFormOpen);
-  }
-
   get template(){
     return createButtonTemplate;
+  }
+
+  #setEventListeres(){
+    this.element.addEventListener('click', this.#handleFormOpen);
   }
 }
