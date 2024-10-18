@@ -34,10 +34,6 @@ export default class EventsModel extends Observable{
     this._notify(UpdateType.INIT);
   }
 
-  #showError(){
-    this._notify(UpdateType.ERROR);
-  }
-
   async updateEvent(updateType, update){
     const {eventData} = update;
     const index = this.#events.findIndex((event) => event.id === eventData.event.id);
@@ -112,5 +108,9 @@ export default class EventsModel extends Observable{
     delete adaptedEvent['is_favorite'];
 
     return adaptedEvent;
+  }
+
+  #showError(){
+    this._notify(UpdateType.ERROR);
   }
 }

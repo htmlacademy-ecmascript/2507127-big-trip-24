@@ -3,7 +3,6 @@ import { sortEventsData } from '../utils/sort.js';
 import { SortType, TimeFormat } from '../utils/const.js';
 import { humanizeDate } from '../utils/event.js';
 
-
 const MAX_DESTINATION_COUNT = 3;
 
 function createTripInfoTitlesTemplate(events, destinations){

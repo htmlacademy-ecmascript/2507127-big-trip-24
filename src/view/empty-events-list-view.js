@@ -9,6 +9,7 @@ function createEmptyListMessageTemplate(currentFilterType) {
 
 export default class EmptyEventsListView extends AbstractView {
   #currentFilterType;
+
   constructor({currentFilterType}){
     super();
     this.#currentFilterType = currentFilterType;

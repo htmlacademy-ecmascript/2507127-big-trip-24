@@ -1,5 +1,3 @@
-
-
 const errorStyles = `
   position:absolute;
   display:flex;

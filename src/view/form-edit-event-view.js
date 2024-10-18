@@ -336,98 +336,7 @@ export default class FormEditEventView extends AbstractStatefulView{
       this.element.addEventListener('submit', this.#formCreateHandler);
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCancelHandler);
     }
-
   }
-
-  #setDatepickers(){
-    this.#datepickerStart = flatpickr(
-      this.element.querySelector('input[name="event-start-time"]'), {
-        dateFormat: 'd/m/y H:i',
-        'time_24hr': true,
-        defaultDate: this._state.userDateFrom || this._state.eventData.event.dateFrom,
-        onChange: this.#dateFromChangeHandler,
-        enableTime: true,
-      });
-
-    this.#datepickerEnd = flatpickr(
-      this.element.querySelector('input[name="event-end-time"]'), {
-        dateFormat: 'd/m/y H:i',
-        'time_24hr': true,
-        defaultDate: this._state.userDateTo || this._state.eventData.event.dateTo,
-        onChange: this.#dateToChangeHandler,
-        enableTime: true,
-        minDate: this._state.userDateFrom || this._state.eventData.event.dateFrom
-      });
-  }
-
-  #dateFromChangeHandler = ([userDateFrom]) => {
-    this._setState({userDateFrom});
-    this.#datepickerEnd.set('minDate', this._state.userDateFrom);
-  };
-
-  #dateToChangeHandler = ([userDateTo]) => {
-    this._setState({userDateTo});
-    this.#datepickerStart.set('maxDate', this._state.userDateTo);
-  };
-
-
-  #formChangeTypeHandler = (evt) => {
-    const targetInput = evt.target.closest('.event__type-input');
-    if (targetInput) {
-      this.element.querySelector('.event__type-toggle').value = targetInput.value;
-
-      this._state.eventData.event.basePrice = this.element.querySelector('.event__input--price').value;
-      this.updateElement({currentEventType: targetInput.value});
-    }
-  };
-
-  #formChangeDestinationHandler = (evt) => {
-    evt.preventDefault();
-    this._state.eventData.event.basePrice = this.element.querySelector('.event__input--price').value;
-    this.updateElement({currentDestinationName: evt.target.value});
-  };
-
-  #formCreateHandler = (evt) => {
-    evt.preventDefault();
-
-    //Выход из функции при отсутсвии введённых данных
-    const inputValues = [
-      document.querySelector('input[name="event-destination"]').value,
-      document.querySelector('input[name="event-start-time"]').value,
-      document.querySelector('input[name="event-end-time"]').value,
-    ];
-    if (inputValues.some((value) => value === '')) {
-      return;
-    }
-
-    this.#handleFormCreate(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData, this.#handleFormClose));
-  };
-
-  #formSubmitHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData, this.#handleFormClose));
-  };
-
-  #formCloseHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFormClose();
-  };
-
-  #formDeleteHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFormDelete();
-  };
-
-  #formCancelHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFormCancel();
-  };
-
-  #inputPriceHandler = (evt) => {
-    if(isNaN(evt.key)) {
-      evt.preventDefault();
-    }
-  };
 
   #changeEventData(state, closeForm){
     const event = {...state};
@@ -511,6 +420,95 @@ export default class FormEditEventView extends AbstractStatefulView{
 
     return event;
   }
+
+  #setDatepickers(){
+    this.#datepickerStart = flatpickr(
+      this.element.querySelector('input[name="event-start-time"]'), {
+        dateFormat: 'd/m/y H:i',
+        'time_24hr': true,
+        defaultDate: this._state.userDateFrom || this._state.eventData.event.dateFrom,
+        onChange: this.#dateFromChangeHandler,
+        enableTime: true,
+      });
+
+    this.#datepickerEnd = flatpickr(
+      this.element.querySelector('input[name="event-end-time"]'), {
+        dateFormat: 'd/m/y H:i',
+        'time_24hr': true,
+        defaultDate: this._state.userDateTo || this._state.eventData.event.dateTo,
+        onChange: this.#dateToChangeHandler,
+        enableTime: true,
+        minDate: this._state.userDateFrom || this._state.eventData.event.dateFrom
+      });
+  }
+
+  #dateFromChangeHandler = ([userDateFrom]) => {
+    this._setState({userDateFrom});
+    this.#datepickerEnd.set('minDate', this._state.userDateFrom);
+  };
+
+  #dateToChangeHandler = ([userDateTo]) => {
+    this._setState({userDateTo});
+    this.#datepickerStart.set('maxDate', this._state.userDateTo);
+  };
+
+  #formChangeTypeHandler = (evt) => {
+    const targetInput = evt.target.closest('.event__type-input');
+    if (targetInput) {
+      this.element.querySelector('.event__type-toggle').value = targetInput.value;
+
+      this._state.eventData.event.basePrice = this.element.querySelector('.event__input--price').value;
+      this.updateElement({currentEventType: targetInput.value});
+    }
+  };
+
+  #formChangeDestinationHandler = (evt) => {
+    evt.preventDefault();
+    this._state.eventData.event.basePrice = this.element.querySelector('.event__input--price').value;
+    this.updateElement({currentDestinationName: evt.target.value});
+  };
+
+  #formCreateHandler = (evt) => {
+    evt.preventDefault();
+
+    //Выход из функции при отсутсвии введённых данных
+    const inputValues = [
+      document.querySelector('input[name="event-destination"]').value,
+      document.querySelector('input[name="event-start-time"]').value,
+      document.querySelector('input[name="event-end-time"]').value,
+    ];
+    if (inputValues.some((value) => value === '')) {
+      return;
+    }
+
+    this.#handleFormCreate(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData, this.#handleFormClose));
+  };
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData, this.#handleFormClose));
+  };
+
+  #formCloseHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormClose();
+  };
+
+  #formDeleteHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormDelete();
+  };
+
+  #formCancelHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormCancel();
+  };
+
+  #inputPriceHandler = (evt) => {
+    if(isNaN(evt.key)) {
+      evt.preventDefault();
+    }
+  };
 
   static parseEventToState(event){
     return {...event,

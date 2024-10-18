@@ -9,7 +9,6 @@ function createInitErrorTemplate() {
 }
 
 export default class InitErrorView extends AbstractView {
-
   get template() {
     return createInitErrorTemplate();
   }
