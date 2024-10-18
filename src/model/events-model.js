@@ -1,5 +1,6 @@
 import Observable from '../framework/observable';
 import { UpdateType } from '../utils/const';
+import { showLoadingErrorMessage } from '../utils/loading-error';
 
 export default class EventsModel extends Observable{
   #eventsApiService = null;
@@ -57,6 +58,7 @@ export default class EventsModel extends Observable{
       update.eventData.event = updatedEvent;
       this._notify(updateType, update);
     } catch (error) {
+      showLoadingErrorMessage(error);
       throw new Error('Can\'t update event');
     }
   }
@@ -69,6 +71,7 @@ export default class EventsModel extends Observable{
 
       this._notify(updateType, newEvent);
     } catch (error) {
+      showLoadingErrorMessage(error);
       throw new Error('Can\'t add event');
     }
   }
@@ -90,6 +93,7 @@ export default class EventsModel extends Observable{
 
       this._notify(updateType);
     } catch (error) {
+      showLoadingErrorMessage(error);
       throw new Error('Can\'t delete event');
     }
   }
