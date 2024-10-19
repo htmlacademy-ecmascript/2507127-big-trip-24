@@ -79,6 +79,7 @@ export default class EventPresenter{
   }
 
   destroy(){
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
     remove(this.#eventComponent);
     remove(this.#eventEditComponent);
   }
