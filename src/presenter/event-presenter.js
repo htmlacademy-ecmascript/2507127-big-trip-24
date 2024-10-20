@@ -70,7 +70,6 @@ export default class EventPresenter{
     }
 
     if (this.#mode === Mode.EDITING) {
-      // replace(this.#eventEditComponent, prevEventEditComponent);
       replace(this.#eventComponent, prevEventEditComponent);
       this.#mode = Mode.DEFAULT;
     }
@@ -80,8 +79,51 @@ export default class EventPresenter{
   }
 
   destroy(){
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
     remove(this.#eventComponent);
     remove(this.#eventEditComponent);
+  }
+
+  resetView(){
+    if (this.#mode !== 'DEFAULT') {
+      this.#resetEventEditComponentData();
+      this.#replaceFormToEvent();
+    }
+  }
+
+  setSaving(){
+    if(this.#mode === Mode.EDITING){
+      this.#eventEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting(){
+    if(this.#mode === Mode.EDITING){
+      this.#eventEditComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting(){
+    if (this.#mode === Mode.DEFAULT) {
+      this.#eventComponent.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#eventEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#eventEditComponent.shake(resetFormState);
   }
 
   #resetEventEditComponentData(){
@@ -95,11 +137,17 @@ export default class EventPresenter{
     });
   }
 
-  resetView(){
-    if (this.#mode !== 'DEFAULT') {
-      this.#resetEventEditComponentData();
-      this.#replaceFormToEvent();
-    }
+  #replaceEventToForm(){
+    replace(this.#eventEditComponent, this.#eventComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
+  }
+
+  #replaceFormToEvent(){
+    replace(this.#eventComponent, this.#eventEditComponent);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
   }
 
   #handleFormDelete = () => {
@@ -141,14 +189,12 @@ export default class EventPresenter{
       return;
     }
 
-    this.#eventData = event.eventData;
-
     //Ре-рендер эвент-поинта с обновленными данными
     this.#handleDataChange(
       UserAction.UPDATE_EVENT,
       UpdateType.MINOR,
       {
-        eventData: this.#eventData,
+        eventData: event.eventData,
         typeOffers: this.#typeOffers,
         allTypes: this.#allTypes,
         allOffers: this.#allOffers,
@@ -169,53 +215,4 @@ export default class EventPresenter{
       this.#replaceFormToEvent();
     }
   };
-
-  setSaving(){
-    if(this.#mode === Mode.EDITING){
-      this.#eventEditComponent.updateElement({
-        isDisabled: true,
-        isSaving: true,
-      });
-    }
-  }
-
-  setDeleting(){
-    if(this.#mode === Mode.EDITING){
-      this.#eventEditComponent.updateElement({
-        isDisabled: true,
-        isDeleting: true,
-      });
-    }
-  }
-
-  setAborting(){
-    if (this.#mode === Mode.DEFAULT) {
-      this.#eventComponent.shake();
-      return;
-    }
-
-    const resetFormState = () => {
-      this.#eventEditComponent.updateElement({
-        isDisabled: false,
-        isSaving: false,
-        isDeleting: false,
-      });
-    };
-
-    this.#eventEditComponent.shake(resetFormState);
-  }
-
-  #replaceEventToForm(){
-    replace(this.#eventEditComponent, this.#eventComponent);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
-    this.#handleModeChange();
-    this.#mode = Mode.EDITING;
-  }
-
-  #replaceFormToEvent(){
-    replace(this.#eventComponent, this.#eventEditComponent);
-    document.removeEventListener('keydown', this.#escKeyDownHandler);
-    this.#mode = Mode.DEFAULT;
-  }
-
 }

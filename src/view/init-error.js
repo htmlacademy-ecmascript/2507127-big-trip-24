@@ -4,12 +4,11 @@ const MESSAGE = 'Failed to load latest route information';
 
 function createInitErrorTemplate() {
   return `
-    <p class="trip-events__msg" style="color:crimson;">${MESSAGE}</p>
+    <p class="trip-events__msg">${MESSAGE}</p>
   `;
 }
 
 export default class InitErrorView extends AbstractView {
-
   get template() {
     return createInitErrorTemplate();
   }

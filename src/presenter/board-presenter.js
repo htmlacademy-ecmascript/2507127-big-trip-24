@@ -71,113 +71,30 @@ export default class BoardPresenter {
 
   init() {
     this.#renderBoard();
+    this.#initCreatePresenter();
   }
-
-  #initCreatePresenter(){
-    this.#createEventPresenter = new CreateEventPresenter({
-      eventsListContainer: this.#eventListComponent.element,
-      allOffers: this.#offersModel.offers,
-      allTypes: this.#allTypes,
-      destinationNames: this.#destinationNames,
-      allDestinations: this.#destinationsModel.destinations,
-      onDataChange: this.#handleViewAction,
-      onDestroy: this.#createEventDestroyHandler
-    });
-  }
-
-  #createEventDestroyHandler = () => {
-    this.#handleCreateEventDestroy();
-    if (!this.events.length) {
-      this.#clearBoard();
-      this.#renderBoard();
-    }
-  };
 
   createEvent(){
     this.#handleModelEvent(UpdateType.MAJOR);
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#createEventPresenter.init();
+    remove(this.#emptyEventsListComponent);
+  }
+
+  #initCreatePresenter(){
+    this.#createEventPresenter = new CreateEventPresenter({
+      eventsListContainer: this.#eventListComponent.element,
+      offersModel: this.#offersModel,
+      destinationsModel: this.#destinationsModel,
+      onDataChange: this.#handleViewAction,
+      onDestroy: this.#createEventDestroyHandler
+    });
   }
 
   #renderContainers(){
     render(this.#boardComponent, this.#boardContainer);
     render(this.#eventListComponent, this.#boardContainer);
   }
-
-  #handleViewAction = async (actionType, updateType, update) => {
-    const {eventData} = update;
-
-    this.#uiBlocker.block();
-
-    switch(actionType){
-      case UserAction.UPDATE_EVENT:
-        this.#createEventButtonComponent.element.disabled = true;
-        this.#eventPresenters.get(eventData.event.id).setSaving();
-        try {
-          await this.#eventsModel.updateEvent(updateType,update);
-        } catch (error) {
-          this.#eventPresenters.get(eventData.event.id).setAborting();
-          this.#createEventButtonComponent.element.disabled = false;
-        }
-        break;
-      case UserAction.ADD_EVENT:
-        this.#createEventPresenter.setSaving();
-        try {
-          await this.#eventsModel.addEvent(updateType,update);
-        } catch (error) {
-          this.#createEventPresenter.setAborting();
-          this.#createEventButtonComponent.element.disabled = false;
-        }
-        break;
-      case UserAction.DELETE_EVENT:
-        this.#createEventButtonComponent.element.disabled = true;
-        this.#eventPresenters.get(eventData.event.id).setDeleting();
-        try {
-          await this.#eventsModel.deleteEvent(updateType,update);
-        } catch (error) {
-          this.#eventPresenters.get(eventData.event.id).setAborting();
-          this.#createEventButtonComponent.element.disabled = false;
-        }
-        break;
-    }
-
-    this.#uiBlocker.unblock();
-  };
-
-  #handleModelEvent = (updateType, data) => {
-    switch(updateType){
-      case UpdateType.PATCH:
-        this.#eventPresenters.get(data.eventData.event.id).init(data);
-        this.#createEventButtonComponent.element.disabled = false;
-        break;
-      case UpdateType.MINOR:
-        this.#clearBoard();
-        this.#renderBoard();
-        break;
-      case UpdateType.MAJOR:
-        this.#clearBoard({resetSortType: true});
-        this.#renderBoard();
-        break;
-      case UpdateType.INIT:
-        this.#isLoading = false;
-        remove(this.#loadingComponent);
-        this.#renderBoard();
-        this.#createEventButtonComponent.element.disabled = false;
-        break;
-      case UpdateType.ERROR:
-        this.#clearBoard();
-        this.#renderBoard({isError: true});
-        break;
-    }
-  };
-
-
-  #handleModeChange = () => {
-    if (this.#createEventPresenter !== null){
-      this.#createEventPresenter.destroy();
-    }
-    this.#eventPresenters.forEach((presenter) => presenter.resetView());
-  };
 
   #removeSort(){
     if (this.#sortPresenter !== null){
@@ -195,16 +112,6 @@ export default class BoardPresenter {
 
     this.#sortPresenter.init();
   }
-
-  #handleSortTypeChange = (sortType) => {
-    if (this.#currentSortType === sortType) {
-      return;
-    }
-
-    this.#currentSortType = sortType;
-    this.#clearBoard();
-    this.#renderBoard();
-  };
 
   #renderLoading() {
     render(this.#loadingComponent, this.#boardComponent.element);
@@ -274,6 +181,7 @@ export default class BoardPresenter {
 
     if (isError) {
       this.#renderInitError();
+      this.#createEventButtonComponent.element.disabled = true;
       return;
     }
 
@@ -295,10 +203,100 @@ export default class BoardPresenter {
     //Уничтожаю форму создания после ре-рендера эвент-поинтов
     if (this.#createEventPresenter !== null) {
       this.#createEventPresenter.destroy();
+    }
+  }
+
+  #createEventDestroyHandler = () => {
+    this.#handleCreateEventDestroy();
+    if (!this.events.length) {
+      this.#clearBoard();
+      this.#renderBoard();
+    }
+  };
+
+  #handleViewAction = async (actionType, updateType, update) => {
+    const {eventData} = update;
+
+    this.#uiBlocker.block();
+
+    switch(actionType){
+      case UserAction.UPDATE_EVENT:
+        this.#createEventButtonComponent.element.disabled = true;
+        this.#eventPresenters.get(eventData.event.id).setSaving();
+        try {
+          await this.#eventsModel.updateEvent(updateType,update);
+        } catch (error) {
+          this.#eventPresenters.get(eventData.event.id).setAborting();
+          this.#createEventButtonComponent.element.disabled = false;
+        }
+        break;
+      case UserAction.ADD_EVENT:
+        this.#createEventPresenter.setSaving();
+        try {
+          await this.#eventsModel.addEvent(updateType,update);
+        } catch (error) {
+          this.#createEventPresenter.setAborting();
+          this.#createEventButtonComponent.element.disabled = false;
+        }
+        break;
+      case UserAction.DELETE_EVENT:
+        this.#createEventButtonComponent.element.disabled = true;
+        this.#eventPresenters.get(eventData.event.id).setDeleting();
+        try {
+          await this.#eventsModel.deleteEvent(updateType,update);
+        } catch (error) {
+          this.#eventPresenters.get(eventData.event.id).setAborting();
+          this.#createEventButtonComponent.element.disabled = false;
+        }
+        break;
+    }
+
+    this.#uiBlocker.unblock();
+  };
+
+  #handleModelEvent = (updateType, data) => {
+    switch(updateType){
+      case UpdateType.PATCH:
+        this.#eventPresenters.get(data.eventData.event.id).init(data);
+        this.#createEventButtonComponent.element.disabled = false;
+        break;
+      case UpdateType.MINOR:
+        this.#clearBoard();
+        this.#renderBoard();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearBoard({resetSortType: true});
+        this.#renderBoard();
+        break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderBoard();
+        this.#createEventButtonComponent.element.disabled = false;
+        break;
+      case UpdateType.ERROR:
+        this.#clearBoard();
+        this.#renderBoard({isError: true});
+        break;
+    }
+  };
+
+  #handleModeChange = () => {
+    if (this.#createEventPresenter !== null){
+      this.#createEventPresenter.destroy();
+    }
+    this.#eventPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
       return;
     }
-    this.#initCreatePresenter();
-  }
+
+    this.#currentSortType = sortType;
+    this.#clearBoard();
+    this.#renderBoard();
+  };
 }
 
 

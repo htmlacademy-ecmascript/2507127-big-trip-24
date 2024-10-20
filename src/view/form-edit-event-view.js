@@ -54,7 +54,7 @@ function createFormHeaderEventNameTemplate({event, destination, destinationNames
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${currentEventType || event.type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationValue || destination.name}" list="destination-list-1" ${isDisabled ? 'disabled' : ''}>
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationValue || destination.name}" list="destination-list-1" ${isDisabled ? 'disabled' : ''} required>
                     <datalist id="destination-list-1">
                       ${destinationOptions}
                     </datalist>
@@ -69,10 +69,10 @@ function createFormHeaderTimeTemplate(event, isDisabled){
   return `
     <div class="event__field-group  event__field-group--time">
       <label class="visually-hidden" for="event-start-time-1">From</label>
-      <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}" ${isDisabled ? 'disabled' : ''}>
+      <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${startTime}" ${isDisabled ? 'disabled' : ''} required>
       &mdash;
       <label class="visually-hidden" for="event-end-time-1">To</label>
-      <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}" ${isDisabled ? 'disabled' : ''}>
+      <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${endTime}" ${isDisabled ? 'disabled' : ''} required>
     </div>
   `;
 }
@@ -86,7 +86,7 @@ function createFormHeaderPriceTemplate(event, isDisabled){
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}" ${isDisabled ? 'disabled' : ''}>
+                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${basePrice}" ${isDisabled ? 'disabled' : ''} min="1" required>
                   </div>
   `;
 }
@@ -176,19 +176,21 @@ function createEventDestinationTemplate({description, pictures}) {
 
 function createOfferListTemplate(offerList) {
   return `
+  <section class="event__section  event__section--offers">
   <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
-                      ${offerList}
-                    </div>
+      ${offerList}
+    </div>
+  </section>
   `;
 }
 
 function createEventDetailsTemplate(offerList, destination) {
   return `
       <section class="event__details">
-                  <section class="event__section  event__section--offers">
+
                     ${offerList?.length ? createOfferListTemplate(offerList) : '' }
-                  </section>
+
                   ${destination}
                 </section>
   `;
@@ -231,10 +233,12 @@ function createFormAddEventTemplate({
   }
 
   return `
+  <li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       ${createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName, isCreatingEvent, isDisabled, isSaving, isDeleting})}
       ${createEventDetailsTemplate(offersList, createEventDestinationTemplate(updatedDestination || destination))}
     </form>
+  </li>
   `;
 }
 
@@ -275,6 +279,7 @@ export default class FormEditEventView extends AbstractStatefulView{
       destinationNames,
       typeOffers,
       allOffers,
+      initialOffers: eventData.offers,
       isCreatingEvent: this.#isCreatingEvent
     }));
 
@@ -317,9 +322,9 @@ export default class FormEditEventView extends AbstractStatefulView{
   }
 
   _restoreHandlers(){
-    this.element.querySelector('.event__type-group').addEventListener('click', this.#formChangeTypeHandler);
+    this.element.querySelector('.event__type-group').addEventListener('change', this.#formChangeTypeHandler);
     this.element.querySelector('.event__input.event__input--destination').addEventListener('change', this.#formChangeDestinationHandler);
-    this.element.querySelector('.event__input--price').addEventListener('input', this.#inputPriceHandler);
+    this.element.querySelector('.event__input--price').addEventListener('keydown', this.#inputPriceHandler);
 
     this.#setDatepickers();
 
@@ -328,107 +333,20 @@ export default class FormEditEventView extends AbstractStatefulView{
 
   _setOptionalHandlers(){
     if (!this.#isCreatingEvent) {
-      this.element.addEventListener('submit', this.#formSubmitHandler);
+      this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
       this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteHandler);
     } else {
-      this.element.addEventListener('submit', this.#formCreateHandler);
+      this.element.querySelector('.event--edit').addEventListener('submit', this.#formCreateHandler);
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCancelHandler);
     }
-
   }
 
-  #setDatepickers(){
-    this.#datepickerStart = flatpickr(
-      this.element.querySelector('input[name="event-start-time"]'), {
-        dateFormat: 'd/m/y H:m',
-        'time_24hr': true,
-        defaultDate: this._state.userDateFrom || this._state.eventData.event.dateFrom,
-        onClose: this.#dateFromChangeHandler,
-        enableTime: true,
-      });
-
-    this.#datepickerEnd = flatpickr(
-      this.element.querySelector('input[name="event-end-time"]'), {
-        dateFormat: 'd/m/y H:m',
-        'time_24hr': true,
-        defaultDate: this._state.userDateTo || this._state.eventData.event.dateTo,
-        onClose: this.#dateToChangeHandler,
-        enableTime: true,
-        minDate: this._state.userDateFrom || this._state.eventData.event.dateFrom
-      });
-  }
-
-  #dateFromChangeHandler = ([userDateFrom]) => {
-    this._setState({userDateFrom});
-    this.#datepickerEnd.set('minDate', this._state.userDateFrom);
-  };
-
-  #dateToChangeHandler = ([userDateTo]) => {
-    this._setState({userDateTo});
-    this.#datepickerStart.set('maxDate', this._state.userDateTo);
-  };
-
-
-  #formChangeTypeHandler = (evt) => {
-    const targetInput = evt.target.closest('.event__type-input');
-    if (targetInput) {
-      this.element.querySelector('.event__type-toggle').value = targetInput.value;
-
-      this.updateElement({currentEventType: targetInput.value});
-    }
-  };
-
-  #formChangeDestinationHandler = (evt) => {
-    evt.preventDefault();
-    this.updateElement({currentDestinationName: evt.target.value});
-  };
-
-  #formCreateHandler = (evt) => {
-    evt.preventDefault();
-
-    //Выход из функции при отсутсвии введённых данных
-    const inputValues = [
-      document.querySelector('input[name="event-destination"]').value,
-      document.querySelector('input[name="event-start-time"]').value,
-      document.querySelector('input[name="event-end-time"]').value,
-    ];
-    if (inputValues.some((value) => value === '')) {
-      return;
-    }
-
-    this.#handleFormCreate(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData));
-  };
-
-  #formSubmitHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData));
-  };
-
-  #formCloseHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFormClose();
-  };
-
-  #formDeleteHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFormDelete();
-  };
-
-  #formCancelHandler = (evt) => {
-    evt.preventDefault();
-    this.#handleFormCancel();
-  };
-
-  #inputPriceHandler = (evt) => {
-    evt.target.value = evt.target.value.replace(/\D+/g, '');
-  };
-
-  #changeEventData(state){
+  #changeEventData(state, closeForm){
     const event = {...state};
 
     //Получение и сравнение начальных/текущих выбранных офферов
-    const initialCheckedOffers = [...event.eventData.offers.map((offer) => offer.title)];
+    const initialCheckedOffers = [...event.initialOffers.map((offer) => offer.title)];
     const currentCheckedOffers = getCheckedOfferTitles();
     const isOffersEqual = currentCheckedOffers.every((offer) => initialCheckedOffers.includes(offer)) && initialCheckedOffers.every((offer) => currentCheckedOffers.includes(offer));
 
@@ -445,8 +363,8 @@ export default class FormEditEventView extends AbstractStatefulView{
       event.userDateTo,
     ];
     const isNoChanges = allNewProperties.every((property) => property === undefined) && isOffersEqual && isPircesEqual;
-    const isZeroPrice = currentPrice < 1;
-    if (isZeroPrice || isNoChanges) {
+    if (isNoChanges) {
+      closeForm();
       return;
     }
 
@@ -507,6 +425,92 @@ export default class FormEditEventView extends AbstractStatefulView{
     return event;
   }
 
+  #setDatepickers(){
+    this.#datepickerStart = flatpickr(
+      this.element.querySelector('input[name="event-start-time"]'), {
+        dateFormat: 'd/m/y H:i',
+        'time_24hr': true,
+        defaultDate: this._state.userDateFrom || this._state.eventData.event.dateFrom,
+        onChange: this.#dateFromChangeHandler,
+        enableTime: true,
+      });
+
+    this.#datepickerEnd = flatpickr(
+      this.element.querySelector('input[name="event-end-time"]'), {
+        dateFormat: 'd/m/y H:i',
+        'time_24hr': true,
+        defaultDate: this._state.userDateTo || this._state.eventData.event.dateTo,
+        onChange: this.#dateToChangeHandler,
+        enableTime: true,
+        minDate: this._state.userDateFrom || this._state.eventData.event.dateFrom
+      });
+  }
+
+  #dateFromChangeHandler = ([userDateFrom]) => {
+    this._setState({userDateFrom});
+    this.#datepickerEnd.set('minDate', this._state.userDateFrom);
+  };
+
+  #dateToChangeHandler = ([userDateTo]) => {
+    this._setState({userDateTo});
+    this.#datepickerStart.set('maxDate', this._state.userDateTo);
+  };
+
+  #formChangeTypeHandler = (evt) => {
+    evt.preventDefault();
+
+    this._state.eventData.event.basePrice = this.element.querySelector('.event__input--price').value;
+    this.updateElement({currentEventType: evt.target.value});
+  };
+
+  #formChangeDestinationHandler = (evt) => {
+    evt.preventDefault();
+    this._state.eventData.event.basePrice = this.element.querySelector('.event__input--price').value;
+    this.updateElement({currentDestinationName: evt.target.value});
+  };
+
+  #formCreateHandler = (evt) => {
+    evt.preventDefault();
+
+    //Выход из функции при отсутсвии введённых данных
+    const inputValues = [
+      document.querySelector('input[name="event-destination"]').value,
+      document.querySelector('input[name="event-start-time"]').value,
+      document.querySelector('input[name="event-end-time"]').value,
+    ];
+    if (inputValues.some((value) => value === '')) {
+      return;
+    }
+
+    this.#handleFormCreate(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData, this.#handleFormClose));
+  };
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit(FormEditEventView.parseStateToEvent(this._state, this.#changeEventData, this.#handleFormClose));
+  };
+
+  #formCloseHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormClose();
+  };
+
+  #formDeleteHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormDelete();
+  };
+
+  #formCancelHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormCancel();
+  };
+
+  #inputPriceHandler = (evt) => {
+    if(isNaN(evt.key)) {
+      evt.preventDefault();
+    }
+  };
+
   static parseEventToState(event){
     return {...event,
       isDisabled: false,
@@ -515,7 +519,7 @@ export default class FormEditEventView extends AbstractStatefulView{
     };
   }
 
-  static parseStateToEvent(state, changeData){
-    return changeData(state);
+  static parseStateToEvent(state, changeData, closeForm){
+    return changeData(state, closeForm);
   }
 }

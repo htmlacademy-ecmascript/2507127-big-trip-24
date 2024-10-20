@@ -1,5 +1,6 @@
 import BoardPresenter from './presenter/board-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
+import TripInfoPresenter from './presenter/trip-info-presenter.js';
 import { render } from './framework/render.js';
 import EventsModel from './model/events-model.js';
 import OffersModel from './model/offers-model.js';
@@ -11,7 +12,7 @@ import EventsApiService from './events-api-service.js';
 const AUTHORIZATION = 'Basic 0cqai2ez065nngc';
 const END_POINT = 'https://24.objects.htmlacademy.pro/big-trip';
 
-const buttonContainer = document.querySelector('.trip-main');
+const headerContainer = document.querySelector('.trip-main');
 const siteTripControlsFilters = document.querySelector('.trip-controls__filters');
 const bodyMainContainer = document.querySelector('main .page-body__container');
 
@@ -27,6 +28,13 @@ const eventsModel = new EventsModel({
   eventsApiService,
   offersModel,
   destinationsModel,
+});
+
+const tripInfoPresenter = new TripInfoPresenter({
+  eventsModel,
+  offersModel,
+  destinationsModel,
+  headerContainer
 });
 
 const boardPresenter = new BoardPresenter({
@@ -53,8 +61,10 @@ function handleCreateEventButtonClick(){
 function handleCreateEventFormClose(){
   createEventButtonViewComponent.element.disabled = false;
 }
-render(createEventButtonViewComponent, buttonContainer);
+render(createEventButtonViewComponent, headerContainer);
+
 
 filterPresenter.init();
-boardPresenter.init();
 eventsModel.init();
+boardPresenter.init();
+tripInfoPresenter.init();

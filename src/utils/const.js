@@ -23,6 +23,7 @@ const SortType = {
 
 const TimeFormat = {
   DATE: 'MMM D',
+  INFO: 'D MMM',
   TIME: 'HH:mm',
   DATE_FULL: 'YYYY-MM-DD',
   DATETIME_FULL: 'YYYY-MM-DDTHH:mm',

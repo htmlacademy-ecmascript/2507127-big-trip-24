@@ -5,23 +5,19 @@ import FormEditEventView from '../view/form-edit-event-view';
 
 export default class CreateEventPresenter{
   #eventsListContainer = null;
-  #allOffers = [];
-  #allDestinations = [];
-  #allTypes = [];
-  #destinationNames = [];
+  #offersModel = null;
+  #destinationsModel = null;
   #formEditComponent = null;
 
   #handleDataChange = null;
   #handleDestroy = null;
 
-  constructor({eventsListContainer, allOffers, allDestinations, allTypes, destinationNames, onDataChange, onDestroy}){
+  constructor({eventsListContainer, offersModel, destinationsModel, onDataChange, onDestroy}){
     this.#eventsListContainer = eventsListContainer;
-    this.#allOffers = allOffers;
-    this.#allDestinations = allDestinations;
-    this.#destinationNames = destinationNames;
+    this.#offersModel = offersModel;
+    this.#destinationsModel = destinationsModel;
     this.#handleDataChange = onDataChange;
     this.#handleDestroy = onDestroy;
-    this.#allTypes = allTypes;
   }
 
   init(){
@@ -30,10 +26,10 @@ export default class CreateEventPresenter{
     }
 
     this.#formEditComponent = new FormEditEventView({
-      allOffers: this.#allOffers,
-      destinations: this.#allDestinations,
-      allTypes: this.#allTypes,
-      destinationNames: this.#destinationNames,
+      allOffers: this.#offersModel.offers,
+      destinations: this.#destinationsModel.destinations,
+      allTypes: this.#offersModel.allTypes,
+      destinationNames: this.#destinationsModel.destinationNames,
       isCreatingEvent: true,
       onFormCreate: this.#handleFormSubmit,
       onFormCancel: this.#handleFormCancel
@@ -87,7 +83,6 @@ export default class CreateEventPresenter{
       UpdateType.MINOR,
       event
     );
-    // this.destroy();
   };
 
   #handleFormCancel = () => {

@@ -11,18 +11,18 @@ export default class OffersModel {
     return this.#offers;
   }
 
-  async init(){
-    try {
-      this.#offers = await this.#eventsApiService.offers;
-    } catch (error) {
-      this.#offers = [];
-    }
-  }
-
   get allTypes(){
     const types = [];
     [...this.#offers].map((item) => types.push(item.type));
     return types;
+  }
+
+  async init(){
+    try {
+      this.#offers = await this.#eventsApiService.offers;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
   getOffersByType(type) {
@@ -33,5 +33,4 @@ export default class OffersModel {
     const targetOffers = this.getOffersByType(type).offers;
     return targetOffers.filter((item) => offersId.find((id) => item.id === id));
   }
-
 }
