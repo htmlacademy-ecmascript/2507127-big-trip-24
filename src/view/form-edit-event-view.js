@@ -322,7 +322,7 @@ export default class FormEditEventView extends AbstractStatefulView{
   }
 
   _restoreHandlers(){
-    this.element.querySelector('.event__type-group').addEventListener('click', this.#formChangeTypeHandler);
+    this.element.querySelector('.event__type-group').addEventListener('change', this.#formChangeTypeHandler);
     this.element.querySelector('.event__input.event__input--destination').addEventListener('change', this.#formChangeDestinationHandler);
     this.element.querySelector('.event__input--price').addEventListener('keydown', this.#inputPriceHandler);
 
@@ -457,13 +457,10 @@ export default class FormEditEventView extends AbstractStatefulView{
   };
 
   #formChangeTypeHandler = (evt) => {
-    const targetInput = evt.target.closest('.event__type-input');
-    if (targetInput) {
-      this.element.querySelector('.event__type-toggle').value = targetInput.value;
+    evt.preventDefault();
 
-      this._state.eventData.event.basePrice = this.element.querySelector('.event__input--price').value;
-      this.updateElement({currentEventType: targetInput.value});
-    }
+    this._state.eventData.event.basePrice = this.element.querySelector('.event__input--price').value;
+    this.updateElement({currentEventType: evt.target.value});
   };
 
   #formChangeDestinationHandler = (evt) => {
