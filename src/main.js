@@ -63,7 +63,8 @@ function handleCreateEventFormClose(){
 }
 render(createEventButtonViewComponent, headerContainer);
 
+
 filterPresenter.init();
-boardPresenter.init();
 eventsModel.init();
+boardPresenter.init();
 tripInfoPresenter.init();

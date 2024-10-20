@@ -71,21 +71,21 @@ export default class BoardPresenter {
 
   init() {
     this.#renderBoard();
+    this.#initCreatePresenter();
   }
 
   createEvent(){
     this.#handleModelEvent(UpdateType.MAJOR);
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#createEventPresenter.init();
+    remove(this.#emptyEventsListComponent);
   }
 
   #initCreatePresenter(){
     this.#createEventPresenter = new CreateEventPresenter({
       eventsListContainer: this.#eventListComponent.element,
-      allOffers: this.#offersModel.offers,
-      allTypes: this.#allTypes,
-      destinationNames: this.#destinationNames,
-      allDestinations: this.#destinationsModel.destinations,
+      offersModel: this.#offersModel,
+      destinationsModel: this.#destinationsModel,
       onDataChange: this.#handleViewAction,
       onDestroy: this.#createEventDestroyHandler
     });
@@ -203,9 +203,7 @@ export default class BoardPresenter {
     //Уничтожаю форму создания после ре-рендера эвент-поинтов
     if (this.#createEventPresenter !== null) {
       this.#createEventPresenter.destroy();
-      return;
     }
-    this.#initCreatePresenter();
   }
 
   #createEventDestroyHandler = () => {
