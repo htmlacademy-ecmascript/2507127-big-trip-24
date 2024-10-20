@@ -5,8 +5,7 @@ import { humanizeDate } from '../utils/event.js';
 
 const MAX_DESTINATION_COUNT = 3;
 
-function createTripInfoTitlesTemplate(events, destinations){
-  const sortedEvents = sortEventsData(events, SortType.DAY);
+function createTripInfoTitlesTemplate(sortedEvents, destinations){
   const currentDestinationData = sortedEvents.map((event) => destinations.find((destination) => event.destination === destination.id));
   const currentDestinationNames = currentDestinationData.map((destination) => destination.name);
 
@@ -18,30 +17,30 @@ function createTripInfoTitlesTemplate(events, destinations){
     <h1 class="trip-info__title">${destinationsRoute}</h1>
   `;
 }
-function createTripInfoDatesTemplate(events){
-  const startTripDate = humanizeDate(events[0]?.dateFrom, TimeFormat.DATE);
-  const endTripDate = humanizeDate(events[events.length - 1]?.dateTo, TimeFormat.DATE);
+function createTripInfoDatesTemplate(sortedEvents){
+  const startTripDate = humanizeDate(sortedEvents[0]?.dateFrom, TimeFormat.INFO);
+  const endTripDate = humanizeDate(sortedEvents[sortedEvents.length - 1]?.dateTo, TimeFormat.INFO);
 
   return `
     <p class="trip-info__dates">${startTripDate} — ${endTripDate}</p>
   `;
 }
 
-function createTripInfoMainTemplate(events, destinations){
+function createTripInfoMainTemplate(sortedEvents, destinations){
   return `
     <div class="trip-info__main">
-      ${createTripInfoTitlesTemplate(events, destinations)}
-      ${createTripInfoDatesTemplate(events)}
+      ${createTripInfoTitlesTemplate(sortedEvents, destinations)}
+      ${createTripInfoDatesTemplate(sortedEvents)}
     </div>
   `;
 }
 
-function createTripInfoCostTemplate(events, offers){
+function createTripInfoCostTemplate(sortedEvents, offers){
   //Сумма базовых цен
-  const basePricesSum = events.reduce((sum, event) => sum + event.basePrice, 0);
+  const basePricesSum = sortedEvents.reduce((sum, event) => sum + event.basePrice, 0);
 
   //Сумма офферов
-  const offersIds = events.map((event) => event.offers).flat();
+  const offersIds = sortedEvents.map((event) => event.offers).flat();
   const allOffers = offers.map((offer) => offer.offers).flat();
   const allOfferPrices = offersIds.map((ID) => allOffers.find((offer) => offer.id === ID).price);
   const offerPricesSum = allOfferPrices.reduce((sum, price) => sum + price, 0);
@@ -53,11 +52,11 @@ function createTripInfoCostTemplate(events, offers){
   `;
 }
 
-function createTripInfoTemplate(events, destinations, offers){
+function createTripInfoTemplate(sortedEvents, destinations, offers){
   return `
     <section class="trip-main__trip-info  trip-info">
-      ${createTripInfoMainTemplate(events, destinations)}
-      ${createTripInfoCostTemplate(events, offers)}
+      ${createTripInfoMainTemplate(sortedEvents, destinations)}
+      ${createTripInfoCostTemplate(sortedEvents, offers)}
     </section>
   `;
 }
@@ -67,15 +66,19 @@ export default class TripInfoView extends AbstractView {
   #offers = [];
   #destinations = [];
 
+  #sortedEvents = [];
+
   constructor({events, offers, destinations}){
     super();
 
     this.#events = events;
     this.#offers = offers;
     this.#destinations = destinations;
+
+    this.#sortedEvents = sortEventsData(this.#events, SortType.DAY);
   }
 
   get template() {
-    return createTripInfoTemplate(this.#events, this.#destinations, this.#offers);
+    return createTripInfoTemplate(this.#sortedEvents, this.#destinations, this.#offers);
   }
 }

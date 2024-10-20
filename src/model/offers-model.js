@@ -21,7 +21,7 @@ export default class OffersModel {
     try {
       this.#offers = await this.#eventsApiService.offers;
     } catch (error) {
-      this.#offers = [];
+      throw new Error(error.message);
     }
   }
 

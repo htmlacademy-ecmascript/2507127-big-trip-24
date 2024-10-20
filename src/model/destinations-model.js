@@ -20,7 +20,7 @@ export default class DestinationsModel {
     try {
       this.#destinations = await this.#eventsApiService.destinations;
     } catch (error) {
-      this.#destinations = [];
+      throw new Error(error.message);
     }
   }
 
