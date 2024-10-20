@@ -231,10 +231,12 @@ function createFormAddEventTemplate({
   }
 
   return `
+  <li class="trip-events__item">
     <form class="event event--edit" action="#" method="post">
       ${createFormHeaderTemplate({event, destination, allTypes, destinationNames, currentEventType, currentDestinationName, isCreatingEvent, isDisabled, isSaving, isDeleting})}
       ${createEventDetailsTemplate(offersList, createEventDestinationTemplate(updatedDestination || destination))}
     </form>
+  </li>
   `;
 }
 
@@ -329,11 +331,11 @@ export default class FormEditEventView extends AbstractStatefulView{
 
   _setOptionalHandlers(){
     if (!this.#isCreatingEvent) {
-      this.element.addEventListener('submit', this.#formSubmitHandler);
+      this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
       this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formCloseHandler);
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteHandler);
     } else {
-      this.element.addEventListener('submit', this.#formCreateHandler);
+      this.element.querySelector('.event--edit').addEventListener('submit', this.#formCreateHandler);
       this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formCancelHandler);
     }
   }
