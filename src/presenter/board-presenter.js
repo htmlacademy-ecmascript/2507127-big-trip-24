@@ -1,10 +1,10 @@
-import EventListView from '../view/events-list-view.js';
+import EventsListView from '../view/events-list-view.js';
 import LoadingView from '../view/loading-view.js';
 import BoardView from '../view/board-view.js';
 import { remove, render } from '../framework/render.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import EmptyEventsListView from '../view/empty-events-list-view.js';
-import InitErrorView from '../view/init-error.js';
+import InitErrorView from '../view/init-error-view.js';
 import EventPresenter from './event-presenter.js';
 import { FilterType, SortType, UpdateType, UserAction } from '../utils/const.js';
 import { sortEventsData } from '../utils/sort.js';
@@ -19,7 +19,7 @@ const TimeLimit = {
 
 export default class BoardPresenter {
   #boardComponent = new BoardView;
-  #eventListComponent = new EventListView;
+  #eventListComponent = new EventsListView;
   #emptyEventsListComponent = null;
   #initErrorComponent = null;
   #loadingComponent = new LoadingView;
